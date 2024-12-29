@@ -1,12 +1,13 @@
 export function getSquareFromCursorPosition(
-	e: MouseEvent,
+	clientX: number,
+	clientY: number,
 	boardNode: HTMLElement,
 ) {
 	const boardRect = boardNode.getBoundingClientRect();
 
 	// Get the mouse position relative to the board
-	const cursorX = e.clientX - boardRect.left;
-	const cursorY = e.clientY - boardRect.top;
+	const cursorX = clientX - boardRect.left;
+	const cursorY = clientY - boardRect.top;
 
 	// Get the board's dimensions
 	const boardWidth = boardRect.width;

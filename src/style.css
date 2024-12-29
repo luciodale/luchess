@@ -1,204 +1,202 @@
-/* First digit is x (1-8), second digit is y (1-8) */
-.square-11 {
+.square-a1 {
 	transform: translate(0%, 700%);
 }
-.square-21 {
+.square-b1 {
 	transform: translate(100%, 700%);
 }
-.square-31 {
+.square-c1 {
 	transform: translate(200%, 700%);
 }
-.square-41 {
+.square-d1 {
 	transform: translate(300%, 700%);
 }
-.square-51 {
+.square-e1 {
 	transform: translate(400%, 700%);
 }
-.square-61 {
+.square-f1 {
 	transform: translate(500%, 700%);
 }
-.square-71 {
+.square-g1 {
 	transform: translate(600%, 700%);
 }
-.square-81 {
+.square-h1 {
 	transform: translate(700%, 700%);
 }
 
-.square-12 {
+.square-a2 {
 	transform: translate(0%, 600%);
 }
-.square-22 {
+.square-b2 {
 	transform: translate(100%, 600%);
 }
-.square-32 {
+.square-c2 {
 	transform: translate(200%, 600%);
 }
-.square-42 {
+.square-d2 {
 	transform: translate(300%, 600%);
 }
-.square-52 {
+.square-e2 {
 	transform: translate(400%, 600%);
 }
-.square-62 {
+.square-f2 {
 	transform: translate(500%, 600%);
 }
-.square-72 {
+.square-g2 {
 	transform: translate(600%, 600%);
 }
-.square-82 {
+.square-h2 {
 	transform: translate(700%, 600%);
 }
 
-.square-13 {
+.square-a3 {
 	transform: translate(0%, 500%);
 }
-.square-23 {
+.square-b3 {
 	transform: translate(100%, 500%);
 }
-.square-33 {
+.square-c3 {
 	transform: translate(200%, 500%);
 }
-.square-43 {
+.square-d3 {
 	transform: translate(300%, 500%);
 }
-.square-53 {
+.square-e3 {
 	transform: translate(400%, 500%);
 }
-.square-63 {
+.square-f3 {
 	transform: translate(500%, 500%);
 }
-.square-73 {
+.square-g3 {
 	transform: translate(600%, 500%);
 }
-.square-83 {
+.square-h3 {
 	transform: translate(700%, 500%);
 }
 
-.square-14 {
+.square-a4 {
 	transform: translate(0%, 400%);
 }
-.square-24 {
+.square-b4 {
 	transform: translate(100%, 400%);
 }
-.square-34 {
+.square-c4 {
 	transform: translate(200%, 400%);
 }
-.square-44 {
+.square-d4 {
 	transform: translate(300%, 400%);
 }
-.square-54 {
+.square-e4 {
 	transform: translate(400%, 400%);
 }
-.square-64 {
+.square-f4 {
 	transform: translate(500%, 400%);
 }
-.square-74 {
+.square-g4 {
 	transform: translate(600%, 400%);
 }
-.square-84 {
+.square-h4 {
 	transform: translate(700%, 400%);
 }
 
-.square-15 {
+.square-a5 {
 	transform: translate(0%, 300%);
 }
-.square-25 {
+.square-b5 {
 	transform: translate(100%, 300%);
 }
-.square-35 {
+.square-c5 {
 	transform: translate(200%, 300%);
 }
-.square-45 {
+.square-d5 {
 	transform: translate(300%, 300%);
 }
-.square-55 {
+.square-e5 {
 	transform: translate(400%, 300%);
 }
-.square-65 {
+.square-f5 {
 	transform: translate(500%, 300%);
 }
-.square-75 {
+.square-g5 {
 	transform: translate(600%, 300%);
 }
-.square-85 {
+.square-h5 {
 	transform: translate(700%, 300%);
 }
 
-.square-16 {
+.square-a6 {
 	transform: translate(0%, 200%);
 }
-.square-26 {
+.square-b6 {
 	transform: translate(100%, 200%);
 }
-.square-36 {
+.square-c6 {
 	transform: translate(200%, 200%);
 }
-.square-46 {
+.square-d6 {
 	transform: translate(300%, 200%);
 }
-.square-56 {
+.square-e6 {
 	transform: translate(400%, 200%);
 }
-.square-66 {
+.square-f6 {
 	transform: translate(500%, 200%);
 }
-.square-76 {
+.square-g6 {
 	transform: translate(600%, 200%);
 }
-.square-86 {
+.square-h6 {
 	transform: translate(700%, 200%);
 }
 
-.square-17 {
+.square-a7 {
 	transform: translate(0%, 100%);
 }
-.square-27 {
+.square-b7 {
 	transform: translate(100%, 100%);
 }
-.square-37 {
+.square-c7 {
 	transform: translate(200%, 100%);
 }
-.square-47 {
+.square-d7 {
 	transform: translate(300%, 100%);
 }
-.square-57 {
+.square-e7 {
 	transform: translate(400%, 100%);
 }
-.square-67 {
+.square-f7 {
 	transform: translate(500%, 100%);
 }
-.square-77 {
+.square-g7 {
 	transform: translate(600%, 100%);
 }
-.square-87 {
+.square-h7 {
 	transform: translate(700%, 100%);
 }
 
-.square-18 {
+.square-a8 {
 	transform: translate(0%, 0%);
 }
-.square-28 {
+.square-b8 {
 	transform: translate(100%, 0%);
 }
-.square-38 {
+.square-c8 {
 	transform: translate(200%, 0%);
 }
-.square-48 {
+.square-d8 {
 	transform: translate(300%, 0%);
 }
-.square-58 {
+.square-e8 {
 	transform: translate(400%, 0%);
 }
-.square-68 {
+.square-f8 {
 	transform: translate(500%, 0%);
 }
-.square-78 {
+.square-g8 {
 	transform: translate(600%, 0%);
 }
-.square-88 {
+.square-h8 {
 	transform: translate(700%, 0%);
 }
-
 /* Black pieces */
 
 .piece.br {

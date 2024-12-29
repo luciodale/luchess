@@ -1,51 +1,33 @@
 <script lang="ts">
-  import { handleDragPiece } from "../lib/handleDragPiece";
+  import { ChessBoard } from "../lib/board/ChessBoard";
+  import { initialPositions } from "../lib/constants";
+  import { handleDragPiece } from "../lib/ui/handleDragPiece";
   import "../style.css";
   import Coordinates from "./Coordinates.svelte";
+
+  const chessBoard = $state(initialPositions);
+  new ChessBoard(chessBoard);
 </script>
 
 <div class="board" id="board-primary">
   <Coordinates />
 
   <div class="element-pool"></div>
+  {#each Object.entries(chessBoard) as [square, piece]}
+    <button
+      class={`piece ${piece} square-${square}`}
+      data-square={square}
+      aria-label={`${square}-${piece}`}
+      ontouchstart={handleDragPiece}
+      onmousedown={handleDragPiece}
+    ></button>
+  {/each}
+</div>
 
-  <div class="piece br square-88"></div>
-  <div class="piece wn square-21"></div>
-  <div class="piece wk square-51"></div>
-  <button
-    class="piece wq square-41"
-    data-square="41"
-    aria-label="piece"
-    on:mousedown={handleDragPiece}
-  ></button>
-  <div class="piece square-48 bq"></div>
-  <div class="piece square-38 bb"></div>
-  <div class="piece wb square-31"></div>
-  <div class="piece wb square-61"></div>
-  <div class="piece bp square-87"></div>
-  <div class="piece wr square-81"></div>
-  <div class="piece bp square-67"></div>
-  <div class="piece wp square-22"></div>
-  <div class="piece square-47 bp"></div>
-  <div class="piece bp square-37"></div>
-  <div class="piece wp square-52"></div>
-  <div class="piece bp square-17"></div>
-  <div class="piece wp square-82"></div>
-  <div class="piece wp square-72"></div>
-  <div class="piece wp square-62"></div>
-  <div class="piece bp square-27"></div>
-  <div class="piece square-42 wp"></div>
-  <div class="piece wp square-32"></div>
-  <div class="piece bp square-57"></div>
-  <div class="piece wp square-12"></div>
-  <div class="piece bp square-77"></div>
-  <div class="piece square-71 wn"></div>
-  <div class="piece br square-18"></div>
-  <div class="piece bn square-28"></div>
-  <div class="piece bk square-58"></div>
-  <div class="piece bb square-68"></div>
-  <div class="piece bn square-78"></div>
-  <div class="piece wr square-11"></div>
+<div>
+  <pre style="background: red; z-index: 1000; position:relative">
+    {JSON.stringify(chessBoard, null, 1)}
+  </pre>
 </div>
 
 <style>

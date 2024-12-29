@@ -1,27 +1,24 @@
 import { getSquareFromCursorPosition } from "./getSquareFromCursorPosition";
-import { isHTMLElement } from "./utils";
+import { getEventPosition, isHTMLElement } from "./utils";
 
 // listeners to track the piece being dragged around the board and released
 // We need a stable reference to the listeners to be able to remove them
-let movePieceListener: ((event: MouseEvent) => void) | null;
-let releasePieceListener: ((event: MouseEvent) => void) | null;
+let movePieceListener: ((event: MouseEvent | TouchEvent) => void) | null;
+let releasePieceListener: ((event: MouseEvent | TouchEvent) => void) | null;
 
 function handleMovePiece(
-	e: MouseEvent,
+	e: MouseEvent | TouchEvent,
 	draggedPiece: HTMLElement,
 	board: HTMLElement,
 ) {
-	if (!draggedPiece) return;
+	const boardRect = board.getBoundingClientRect();
+	const { clientX, clientY } = getEventPosition(e);
 
-	getSquareFromCursorPosition(e, board);
-
-	const boardRect = board?.getBoundingClientRect();
-
-	if (!boardRect) return;
+	getSquareFromCursorPosition(clientX, clientY, board);
 
 	// Cursor position relative to the board (in pixels)
-	const cursorX = e.clientX - boardRect.left;
-	const cursorY = e.clientY - boardRect.top;
+	const cursorX = clientX - boardRect.left;
+	const cursorY = clientY - boardRect.top;
 
 	// Piece dimensions
 	const pieceWidth = draggedPiece.offsetWidth;
@@ -36,16 +33,11 @@ function handleMovePiece(
 }
 
 function handleReleasePiece(
-	e: MouseEvent,
+	e: MouseEvent | TouchEvent,
 	draggedPiece: HTMLElement,
 	board: HTMLElement,
 ) {
-	if (
-		!draggedPiece ||
-		!isHTMLElement(board) ||
-		!movePieceListener ||
-		!releasePieceListener
-	)
+	if (!movePieceListener || !releasePieceListener)
 		throw Error("Invalid arguments");
 
 	draggedPiece.classList.remove("dragging");
@@ -61,12 +53,19 @@ function handleReleasePiece(
 
 	board.removeEventListener("mousemove", movePieceListener);
 	board.removeEventListener("mouseup", releasePieceListener);
+
+	board.removeEventListener("touchmove", movePieceListener);
+	board.removeEventListener("touchend", releasePieceListener);
 }
 
-export function handleDragPiece(e: MouseEvent) {
+export function handleDragPiece(e: MouseEvent | TouchEvent) {
 	const board = document.querySelector(".board");
 
 	if (!isHTMLElement(e.target) || !isHTMLElement(board)) return;
+
+	if (e instanceof TouchEvent) {
+		e.preventDefault();
+	}
 
 	const draggedPiece = e.target;
 	console.log("Start dragging");
@@ -83,11 +82,14 @@ export function handleDragPiece(e: MouseEvent) {
 	console.log("square", square);
 	cell?.classList.add("highlight", `square-${square}`);
 
-	movePieceListener = (e: MouseEvent) =>
+	movePieceListener = (e: MouseEvent | TouchEvent) =>
 		handleMovePiece(e, draggedPiece, board);
-	releasePieceListener = (e: MouseEvent) =>
+	releasePieceListener = (e: MouseEvent | TouchEvent) =>
 		handleReleasePiece(e, draggedPiece, board);
 
 	board.addEventListener("mousemove", movePieceListener);
 	board.addEventListener("mouseup", releasePieceListener);
+
+	board.addEventListener("touchmove", movePieceListener);
+	board.addEventListener("touchend", releasePieceListener);
 }
