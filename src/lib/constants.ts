@@ -16,6 +16,9 @@ export type TPiece =
 	| "wk"
 	| "wp";
 
+export const files: TFile[] = ["a", "b", "c", "d", "e", "f", "g", "h"];
+export const ranks: TRank[] = [1, 2, 3, 4, 5, 6, 7, 8];
+
 export type TBoard = Record<TSquare, TPiece | null>;
 
 export const initialPositions: Record<TSquare, TPiece | null> = {

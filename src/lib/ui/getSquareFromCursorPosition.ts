@@ -1,8 +1,10 @@
+import { files, ranks } from "../constants";
+
 export function getSquareFromCursorPosition(
 	clientX: number,
 	clientY: number,
 	boardNode: HTMLElement,
-) {
+): string {
 	const boardRect = boardNode.getBoundingClientRect();
 
 	// Get the mouse position relative to the board
@@ -21,12 +23,11 @@ export function getSquareFromCursorPosition(
 	const col = Math.floor(xPercent / 12.5); // Each column is 12.5% of the board
 	const row = 7 - Math.floor(yPercent / 12.5); // Each row is 12.5% of the board (flip y axis)
 
-	// Get the square number, square-11 through square-88 (8x8 grid)
-	const squareNumber = 8 * row + col + 1; // Convert row/col to square number (1-64)
+	const file = files[col];
+	const rank = ranks[row];
 
-	// Format square like square-11, square-22, ..., square-88
-	const squareId = `square-${String(squareNumber).padStart(2, "0")}`;
-	console.log("squareId", squareId);
+	// Format square like a1, b2, ..., h8
+	const squareId = `${file}${rank}`;
 
-	return squareId; // Example: "square-11", "square-55", etc.
+	return squareId; // Example: "a1", "b2", etc.
 }

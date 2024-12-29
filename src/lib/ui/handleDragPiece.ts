@@ -1,3 +1,5 @@
+import type { ChessBoard } from "../board/ChessBoard";
+import type { TPiece, TSquare } from "../constants";
 import { getSquareFromCursorPosition } from "./getSquareFromCursorPosition";
 import { getEventPosition, isHTMLElement } from "./utils";
 
@@ -8,42 +10,48 @@ let releasePieceListener: ((event: MouseEvent | TouchEvent) => void) | null;
 
 function handleMovePiece(
 	e: MouseEvent | TouchEvent,
-	draggedPiece: HTMLElement,
-	board: HTMLElement,
+	draggedPieceNode: HTMLElement,
+	boardNode: HTMLElement,
 ) {
-	const boardRect = board.getBoundingClientRect();
+	const boardRect = boardNode.getBoundingClientRect();
 	const { clientX, clientY } = getEventPosition(e);
-
-	getSquareFromCursorPosition(clientX, clientY, board);
 
 	// Cursor position relative to the board (in pixels)
 	const cursorX = clientX - boardRect.left;
 	const cursorY = clientY - boardRect.top;
 
 	// Piece dimensions
-	const pieceWidth = draggedPiece.offsetWidth;
-	const pieceHeight = draggedPiece.offsetHeight;
+	const pieceWidth = draggedPieceNode.offsetWidth;
+	const pieceHeight = draggedPieceNode.offsetHeight;
 
 	// Center the piece on the cursor
 	const centeredX = cursorX - pieceWidth / 2;
 	const centeredY = cursorY - pieceHeight / 2;
 
 	// Apply the position (in pixels, relative to the board)
-	draggedPiece.style.transform = `translate(${centeredX}px, ${centeredY}px)`;
+	draggedPieceNode.style.transform = `translate(${centeredX}px, ${centeredY}px)`;
 }
 
 function handleReleasePiece(
 	e: MouseEvent | TouchEvent,
-	draggedPiece: HTMLElement,
-	board: HTMLElement,
+	draggedPieceNode: HTMLElement,
+	boardNode: HTMLElement,
+	chessBoard: ChessBoard,
+	piece: TPiece,
+	square: TSquare,
 ) {
 	if (!movePieceListener || !releasePieceListener)
 		throw Error("Invalid arguments");
 
-	draggedPiece.classList.remove("dragging");
-	draggedPiece.style.transform = "";
+	const { clientX, clientY } = getEventPosition(e);
 
-	const cell = board?.querySelector(".highlight");
+	const initalSquare = draggedPieceNode.getAttribute("data-square");
+	const targetSquare = getSquareFromCursorPosition(clientX, clientY, boardNode);
+
+	draggedPieceNode.classList.remove("dragging");
+	draggedPieceNode.style.transform = "";
+
+	const cell = boardNode?.querySelector(".highlight");
 
 	if (cell?.contains(e.target as Node)) {
 		console.log("in contains");
@@ -51,45 +59,54 @@ function handleReleasePiece(
 		if (cell) cell.classList.value = "element-pool";
 	}
 
-	board.removeEventListener("mousemove", movePieceListener);
-	board.removeEventListener("mouseup", releasePieceListener);
+	boardNode.removeEventListener("mousemove", movePieceListener);
+	boardNode.removeEventListener("mouseup", releasePieceListener);
 
-	board.removeEventListener("touchmove", movePieceListener);
-	board.removeEventListener("touchend", releasePieceListener);
+	boardNode.removeEventListener("touchmove", movePieceListener);
+	boardNode.removeEventListener("touchend", releasePieceListener);
 }
 
-export function handleDragPiece(e: MouseEvent | TouchEvent) {
-	const board = document.querySelector(".board");
-
-	if (!isHTMLElement(e.target) || !isHTMLElement(board)) return;
+export function handleDragPiece(
+	e: MouseEvent | TouchEvent,
+	chessBoard: ChessBoard,
+	piece: TPiece,
+	square: TSquare,
+	boardNode: HTMLElement,
+) {
+	if (!isHTMLElement(e.target) || !isHTMLElement(boardNode)) return;
 
 	if (e instanceof TouchEvent) {
 		e.preventDefault();
 	}
 
-	const draggedPiece = e.target;
+	const draggedPieceNode = e.target;
 	console.log("Start dragging");
 
-	draggedPiece.classList.add("dragging");
+	draggedPieceNode.classList.add("dragging");
 
 	// Run the position logic immediately on mousedown
-	handleMovePiece(e, draggedPiece, board);
+	handleMovePiece(e, draggedPieceNode, boardNode);
 
 	// Add event listeners for continuous updates
-	const cell = board?.querySelector(".element-pool");
+	const cell = boardNode?.querySelector(".element-pool");
 
-	const square = draggedPiece.getAttribute("data-square");
-	console.log("square", square);
 	cell?.classList.add("highlight", `square-${square}`);
 
 	movePieceListener = (e: MouseEvent | TouchEvent) =>
-		handleMovePiece(e, draggedPiece, board);
+		handleMovePiece(e, draggedPieceNode, boardNode);
 	releasePieceListener = (e: MouseEvent | TouchEvent) =>
-		handleReleasePiece(e, draggedPiece, board);
+		handleReleasePiece(
+			e,
+			draggedPieceNode,
+			boardNode,
+			chessBoard,
+			piece,
+			square,
+		);
 
-	board.addEventListener("mousemove", movePieceListener);
-	board.addEventListener("mouseup", releasePieceListener);
+	boardNode.addEventListener("mousemove", movePieceListener);
+	boardNode.addEventListener("mouseup", releasePieceListener);
 
-	board.addEventListener("touchmove", movePieceListener);
-	board.addEventListener("touchend", releasePieceListener);
+	boardNode.addEventListener("touchmove", movePieceListener);
+	boardNode.addEventListener("touchend", releasePieceListener);
 }
