@@ -16,14 +16,12 @@ export class ChessBoard {
 		}
 	}
 
-	public getPieces(squares: TSquare[]) {
-		return squares.map((square) => this.board[square]);
+	public getPiece(square: TSquare) {
+		return this.board[square];
 	}
 
-	public setPieces(pieces: { square: TSquare; piece: TPiece | null }[]) {
-		for (const { square, piece } of pieces) {
-			this.board[square] = piece;
-		}
+	public setPiece(square: TSquare, piece: TPiece | null) {
+		this.board[square] = piece;
 	}
 
 	public setBoard(board: TBoard): void {

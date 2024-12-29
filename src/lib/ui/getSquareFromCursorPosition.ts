@@ -1,19 +1,22 @@
-import { files, ranks } from "../constants";
+import { type TSquare, files, ranks } from "../constants";
 
 export function getSquareFromCursorPosition(
 	clientX: number,
 	clientY: number,
 	boardNode: HTMLElement,
-): string {
-	const boardRect = boardNode.getBoundingClientRect();
+	initSquare: TSquare,
+) {
+	const { top, left, width, height } = boardNode.getBoundingClientRect();
+	if (clientX < 0 || clientY < 0 || clientX > width || clientY > height)
+		return initSquare;
 
 	// Get the mouse position relative to the board
-	const cursorX = clientX - boardRect.left;
-	const cursorY = clientY - boardRect.top;
+	const cursorX = clientX - left;
+	const cursorY = clientY - top;
 
 	// Get the board's dimensions
-	const boardWidth = boardRect.width;
-	const boardHeight = boardRect.height;
+	const boardWidth = width;
+	const boardHeight = height;
 
 	// Convert the mouse position to percentages
 	const xPercent = (cursorX / boardWidth) * 100;
