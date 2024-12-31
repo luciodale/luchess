@@ -1,4 +1,4 @@
-import type { ChessBoard } from "../board/ChessBoard";
+import type { ChessBoard } from "../board/Chess.svelte";
 import type { TPiece, TSquare } from "../constants";
 import { getSquareFromCursorPosition } from "./getSquareFromCursorPosition";
 import { getEventPosition, isHTMLElement } from "./utils";
@@ -7,6 +7,17 @@ import { getEventPosition, isHTMLElement } from "./utils";
 // We need a stable reference to the listeners to be able to remove them
 let movePieceListener: ((event: MouseEvent | TouchEvent) => void) | null;
 let releasePieceListener: ((event: MouseEvent | TouchEvent) => void) | null;
+
+function removeListeners(boardNode: HTMLElement) {
+	if (!movePieceListener || !releasePieceListener)
+		throw Error("Invalid arguments");
+
+	boardNode.removeEventListener("mousemove", movePieceListener);
+	boardNode.removeEventListener("mouseup", releasePieceListener);
+
+	boardNode.removeEventListener("touchmove", movePieceListener);
+	boardNode.removeEventListener("touchend", releasePieceListener);
+}
 
 function handleMovePiece(
 	e: MouseEvent | TouchEvent,
@@ -40,9 +51,6 @@ function handleReleasePiece(
 	piece: TPiece,
 	square: TSquare,
 ) {
-	if (!movePieceListener || !releasePieceListener)
-		throw Error("Invalid arguments");
-
 	const { clientX, clientY } = getEventPosition(e);
 
 	const targetSquare = getSquareFromCursorPosition(
@@ -53,8 +61,7 @@ function handleReleasePiece(
 	);
 
 	console.log("targetSquare", targetSquare);
-
-	// chessBoard.setPiece(targetSquare, null);
+	chessBoard.setPiece(square, targetSquare, piece);
 
 	draggedPieceNode.classList.remove("dragging");
 	draggedPieceNode.style.transform = "";
@@ -67,11 +74,7 @@ function handleReleasePiece(
 		if (cell) cell.classList.value = "element-pool";
 	}
 
-	boardNode.removeEventListener("mousemove", movePieceListener);
-	boardNode.removeEventListener("mouseup", releasePieceListener);
-
-	boardNode.removeEventListener("touchmove", movePieceListener);
-	boardNode.removeEventListener("touchend", releasePieceListener);
+	removeListeners(boardNode);
 }
 
 export function handleDragPiece(

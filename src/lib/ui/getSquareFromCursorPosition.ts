@@ -7,8 +7,6 @@ export function getSquareFromCursorPosition(
 	initSquare: TSquare,
 ) {
 	const { top, left, width, height } = boardNode.getBoundingClientRect();
-	if (clientX < 0 || clientY < 0 || clientX > width || clientY > height)
-		return initSquare;
 
 	// Get the mouse position relative to the board
 	const cursorX = clientX - left;
@@ -29,8 +27,8 @@ export function getSquareFromCursorPosition(
 	const file = files[col];
 	const rank = ranks[row];
 
-	// Format square like a1, b2, ..., h8
-	const squareId = `${file}${rank}`;
+	if (!file || !rank) return initSquare;
 
-	return squareId; // Example: "a1", "b2", etc.
+	// Format square like a1, b2, ..., h8
+	return `${file}${rank}` as const;
 }

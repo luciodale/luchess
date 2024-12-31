@@ -2,22 +2,27 @@ export type TFile = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h";
 export type TRank = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 export type TSquare = `${TFile}${TRank}`;
 
-export type TPiece =
-	| "br"
-	| "bn"
-	| "bb"
-	| "bq"
-	| "bk"
-	| "bp"
-	| "wr"
-	| "wn"
-	| "wb"
-	| "wq"
-	| "wk"
-	| "wp";
+export type TPawn = "bp" | "wp";
+export type TKnight = "bn" | "wn";
+export type TBishop = "bb" | "wb";
+export type TRook = "br" | "wr";
+export type TQueen = "bq" | "wq";
+export type TKing = "bk" | "wk";
 
-export const files: TFile[] = ["a", "b", "c", "d", "e", "f", "g", "h"];
-export const ranks: TRank[] = [1, 2, 3, 4, 5, 6, 7, 8];
+export type TPiece = TPawn | TKnight | TBishop | TRook | TQueen | TKing;
+
+export const files = [
+	"a",
+	"b",
+	"c",
+	"d",
+	"e",
+	"f",
+	"g",
+	"h",
+] as const satisfies TFile[];
+
+export const ranks = [1, 2, 3, 4, 5, 6, 7, 8] as const satisfies TRank[];
 
 export type TBoard = Record<TSquare, TPiece | null>;
 
@@ -87,3 +92,55 @@ export const initialPositions: Record<TSquare, TPiece | null> = {
 	g8: "bn",
 	h8: "br",
 };
+
+export type TSpecialMoveEnPassant = {
+	type: "enPassant";
+	capturedPieceSquare: TSquare;
+	rookFromSquare?: undefined;
+	rookToSquare?: undefined;
+	promotedTo?: undefined;
+};
+
+export type TSpecialMoveCastling = {
+	type: "castling";
+	capturedPieceSquare?: undefined;
+	rookFromSquare: TSquare;
+	rookToSquare: TSquare;
+	promotedTo?: undefined;
+};
+
+export type TSpecialMovePromotion = {
+	type: "promotion";
+	promotedTo: TKnight | TBishop | TRook | TQueen;
+	capturedPieceSquare?: undefined;
+	rookFromSquare?: undefined;
+	rookToSquare?: undefined;
+};
+
+export type TValidationResult =
+	| {
+			valid: false;
+			message: string;
+			specialMove?: undefined;
+	  }
+	| {
+			valid: true;
+			message?: undefined;
+			specialMove?:
+				| TSpecialMoveEnPassant
+				| TSpecialMoveCastling
+				| TSpecialMovePromotion;
+	  };
+
+export type THistoryMove = {
+	from: TSquare;
+	to: TSquare;
+	piece: TPiece;
+	capturedPiece?: TPiece;
+	specialMove?:
+		| TSpecialMoveEnPassant
+		| TSpecialMoveCastling
+		| TSpecialMovePromotion;
+};
+
+export type THistory = THistoryMove[];

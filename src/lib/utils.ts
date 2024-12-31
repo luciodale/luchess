@@ -7,3 +7,5 @@ export type ObjectEntry<T> = {
 export const objectEntries = Object.entries as <T>(
 	o: T,
 ) => Array<ObjectEntry<T>>;
+
+export const objectKeys = Object.keys as <T>(o: T) => Array<keyof T>;
