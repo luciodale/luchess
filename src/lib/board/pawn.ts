@@ -8,11 +8,11 @@ import type {
 import { validateSameColorCapture } from "./common";
 
 function validateMove(
-	originSquare: TSquare,
+	from: TSquare,
 	destinationSquare: TSquare,
 	isWhite: boolean,
 ): TValidationResult {
-	const originRank = Number(originSquare[1]);
+	const originRank = Number(from[1]);
 	const destinationRank = Number(destinationSquare[1]);
 
 	if (isWhite) {
@@ -60,13 +60,13 @@ function validateMove(
 }
 
 function validateCapture(
-	originSquare: TSquare,
+	from: TSquare,
 	destinationPiece: TPiece | null,
 	destinationSquare: TSquare,
 	isWhite: boolean,
 	history: THistory,
 ): TValidationResult {
-	const isDiagonal = destinationSquare[0] !== originSquare[0];
+	const isDiagonal = destinationSquare[0] !== from[0];
 
 	if (isDiagonal) {
 		if (
@@ -83,8 +83,8 @@ function validateCapture(
 					to: prevSquareTo,
 				} = lastMove;
 
-				const originFile = originSquare[0];
-				const originRank = Number(originSquare[1]);
+				const originFile = from[0];
+				const originRank = Number(from[1]);
 				const destFile = destinationSquare[0];
 				const destRank = Number(destinationSquare[1]);
 
@@ -106,7 +106,7 @@ function validateCapture(
 						valid: true,
 						specialMove: {
 							type: "enPassant",
-							capturedPieceSquare: prevSquareTo,
+							destinationPieceSquare: prevSquareTo,
 						},
 					};
 				}
@@ -135,7 +135,7 @@ function validateCapture(
 
 export function validatePawnPosition(
 	originPiece: TPawn,
-	originSquare: TSquare,
+	from: TSquare,
 	destinationPiece: TPiece | null,
 	destinationSquare: TSquare,
 	history: THistory,
@@ -151,13 +151,13 @@ export function validatePawnPosition(
 		return sameColorCaptureResult;
 	}
 
-	const moveResult = validateMove(originSquare, destinationSquare, isWhite);
+	const moveResult = validateMove(from, destinationSquare, isWhite);
 	if (!moveResult.valid) {
 		return moveResult;
 	}
 
 	const captureResult = validateCapture(
-		originSquare,
+		from,
 		destinationPiece,
 		destinationSquare,
 		isWhite,

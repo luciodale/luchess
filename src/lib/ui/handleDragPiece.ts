@@ -53,15 +53,10 @@ function handleReleasePiece(
 ) {
 	const { clientX, clientY } = getEventPosition(e);
 
-	const targetSquare = getSquareFromCursorPosition(
-		clientX,
-		clientY,
-		boardNode,
-		square,
-	);
+	const to = getSquareFromCursorPosition(clientX, clientY, boardNode, square);
 
-	console.log("targetSquare", targetSquare);
-	chessBoard.setPiece(square, targetSquare, piece);
+	console.log("to", to);
+	chessBoard.setPiece(square, to, piece);
 
 	draggedPieceNode.classList.remove("dragging");
 	draggedPieceNode.style.transform = "";

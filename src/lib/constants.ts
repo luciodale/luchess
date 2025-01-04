@@ -95,7 +95,7 @@ export const initialPositions: Record<TSquare, TPiece | null> = {
 
 export type TSpecialMoveEnPassant = {
 	type: "enPassant";
-	capturedPieceSquare: TSquare;
+	destinationPieceSquare: TSquare;
 	rookFromSquare?: undefined;
 	rookToSquare?: undefined;
 	promotedTo?: undefined;
@@ -103,7 +103,7 @@ export type TSpecialMoveEnPassant = {
 
 export type TSpecialMoveCastling = {
 	type: "castling";
-	capturedPieceSquare?: undefined;
+	destinationPieceSquare?: undefined;
 	rookFromSquare: TSquare;
 	rookToSquare: TSquare;
 	promotedTo?: undefined;
@@ -112,7 +112,7 @@ export type TSpecialMoveCastling = {
 export type TSpecialMovePromotion = {
 	type: "promotion";
 	promotedTo: TKnight | TBishop | TRook | TQueen;
-	capturedPieceSquare?: undefined;
+	destinationPieceSquare?: undefined;
 	rookFromSquare?: undefined;
 	rookToSquare?: undefined;
 };
@@ -136,11 +136,6 @@ export type THistoryMove = {
 	from: TSquare;
 	to: TSquare;
 	piece: TPiece;
-	capturedPiece?: TPiece;
-	specialMove?:
-		| TSpecialMoveEnPassant
-		| TSpecialMoveCastling
-		| TSpecialMovePromotion;
 };
 
 export type THistory = THistoryMove[];

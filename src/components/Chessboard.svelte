@@ -17,18 +17,10 @@
   $inspect(history);
 
   function handleKeydown(event: KeyboardEvent) {
-    if (event.key === "ArrowLeft") {
-      goToMove(currentMoveIndex - 1);
-    } else if (event.key === "ArrowRight") {
-      goToMove(currentMoveIndex + 1);
-    }
-  }
-
-  function goToMove(moveIndex: number) {
-    try {
-      chessBoard.goToMove(moveIndex);
-    } catch (error) {
-      console.error(error);
+    if (event.key === "ArrowRight") {
+      chessBoard.redo();
+    } else if (event.key === "ArrowLeft") {
+      chessBoard.undo();
     }
   }
 
@@ -61,19 +53,9 @@
 </div>
 
 <div class="controls">
-  <button
-    onclick={() => goToMove(currentMoveIndex - 1)}
-    disabled={currentMoveIndex <= -1}
-  >
-    Previous
-  </button>
-  <span>{currentMoveIndex + 1} / {history.length}</span>
-  <button
-    onclick={() => goToMove(currentMoveIndex + 1)}
-    disabled={currentMoveIndex >= history.length - 1}
-  >
-    Next
-  </button>
+  <button onclick={() => chessBoard.undo()}> Previous </button>
+  <span>{currentMoveIndex}</span>
+  <button onclick={() => chessBoard.redo()}> Next </button>
 </div>
 
 <style>

@@ -9,7 +9,8 @@ import {
 	type TSquare,
 	initialPositions,
 } from "../constants";
-import { handleSpecialMove, undoSpecialMove } from "./common";
+import { objectEntries } from "../utils";
+import { handleSpecialMove } from "./common";
 import { validatePawnPosition } from "./pawn";
 
 export class ChessBoard {
@@ -21,13 +22,14 @@ export class ChessBoard {
 		return this.board[square];
 	}
 
-	public setPiece(
-		originSquare: TSquare,
-		targetSquare: TSquare,
-		piece: TPiece,
-	): boolean {
-		const destinationPiece = this.getPiece(targetSquare);
-		if (originSquare === targetSquare) return false;
+	public setPiece(from: TSquare, to: TSquare, piece: TPiece, isReplay = false) {
+		const destinationPiece = this.getPiece(to);
+
+		const isBrowsingHistory = this.currentMoveIndex < this.history.length - 1;
+
+		// can't make a move if browsing history
+		if (isBrowsingHistory && !isReplay) return;
+		if (from === to) return;
 
 		let specialMove:
 			| TSpecialMoveEnPassant
@@ -35,96 +37,68 @@ export class ChessBoard {
 			| TSpecialMovePromotion
 			| undefined;
 
+		const relevantHistory =
+			isBrowsingHistory || isReplay
+				? this.history.slice(0, this.currentMoveIndex)
+				: this.history;
+
 		if (piece === "bp" || piece === "wp") {
 			const result = validatePawnPosition(
 				piece,
-				originSquare,
+				from,
 				destinationPiece,
-				targetSquare,
-				this.history,
+				to,
+				relevantHistory,
 			);
 
-			if (!result.valid) return false;
+			if (!result.valid) return;
 			specialMove = result.specialMove;
 		}
 
-		const historyMove: THistoryMove = {
-			from: originSquare,
-			to: targetSquare,
-			piece,
-			capturedPiece: destinationPiece || undefined,
-			specialMove,
-		};
-
-		this.board[originSquare] = null;
-		this.board[targetSquare] = piece;
+		this.board[from] = null;
+		this.board[to] = piece;
 
 		if (specialMove) {
 			handleSpecialMove(this.board, specialMove);
 		}
-		this.addMoveToHistory(historyMove);
 
-		return true;
-	}
+		// only add move to history if it's a new move and not a replay
+		if (!isReplay && !isBrowsingHistory) {
+			const historyMove: THistoryMove = {
+				from,
+				to,
+				piece,
+			};
 
-	private addMoveToHistory(move: THistoryMove): void {
-		if (this.currentMoveIndex < this.history.length - 1) {
-			this.history = this.history.slice(0, this.currentMoveIndex + 1);
-		}
-		this.history.push(move);
-		this.currentMoveIndex = this.history.length - 1;
-	}
-
-	public setBoard(board: TBoard): void {
-		this.board = { ...board };
-	}
-
-	public goToMove(moveIndex: number): void {
-		if (moveIndex < -1 || moveIndex >= this.history.length) {
-			throw new Error("Invalid move index");
-		}
-
-		if (moveIndex === this.currentMoveIndex) return;
-
-		if (moveIndex === -1) {
-			this.board = { ...initialPositions };
-			this.currentMoveIndex = -1;
-			return;
-		}
-
-		const isMovingBackwards = moveIndex < this.currentMoveIndex;
-		const start = isMovingBackwards ? this.currentMoveIndex : moveIndex;
-		const end = isMovingBackwards ? moveIndex : this.currentMoveIndex;
-
-		for (let i = start; i !== end; i += isMovingBackwards ? -1 : 1) {
-			isMovingBackwards ? this.undoMove() : this.redoMove();
+			this.history.push(historyMove);
+			this.currentMoveIndex++;
 		}
 	}
 
-	private undoMove(): void {
+	private resetBoard() {
+		for (const [square, piece] of objectEntries(initialPositions)) {
+			this.board[square] = piece;
+		}
+	}
+
+	private replayMoves() {
+		this.resetBoard();
+
+		for (let i = 0; i <= this.currentMoveIndex; i++) {
+			const historyMove = this.history[i];
+			this.setPiece(historyMove.from, historyMove.to, historyMove.piece, true);
+		}
+	}
+
+	public undo() {
 		if (this.currentMoveIndex < 0) return;
-
-		const move = this.history[this.currentMoveIndex];
-		this.board[move.from] = move.piece;
-		this.board[move.to] = move.capturedPiece || null;
-
-		if (move.specialMove) {
-			undoSpecialMove(this.board, move.specialMove);
-		}
-
 		this.currentMoveIndex--;
+		this.replayMoves();
 	}
 
-	private redoMove(): void {
+	public redo() {
 		if (this.currentMoveIndex >= this.history.length - 1) return;
-
 		this.currentMoveIndex++;
-		const move = this.history[this.currentMoveIndex];
-		this.board[move.from] = null;
-		this.board[move.to] = move.piece;
-
-		if (move.specialMove) {
-			handleSpecialMove(this.board, move.specialMove);
-		}
+		this.replayMoves();
 	}
 }
