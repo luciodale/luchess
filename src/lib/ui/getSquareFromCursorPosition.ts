@@ -5,6 +5,7 @@ export function getSquareFromCursorPosition(
 	clientY: number,
 	boardNode: HTMLElement,
 	initSquare: TSquare,
+	color: "white" | "black",
 ) {
 	const { top, left, width, height } = boardNode.getBoundingClientRect();
 
@@ -20,9 +21,19 @@ export function getSquareFromCursorPosition(
 	const xPercent = (cursorX / boardWidth) * 100;
 	const yPercent = (cursorY / boardHeight) * 100;
 
-	// Calculate the column (x axis) and row (y axis) based on percentages
-	const col = Math.floor(xPercent / 12.5); // Each column is 12.5% of the board
-	const row = 7 - Math.floor(yPercent / 12.5); // Each row is 12.5% of the board (flip y axis)
+	// Calculate the column and row based on the player's color
+	let col: number;
+	let row: number;
+
+	if (color === "white") {
+		// Standard orientation (white at bottom)
+		col = Math.floor(xPercent / 12.5); // Each column is 12.5% of the board
+		row = 7 - Math.floor(yPercent / 12.5); // Flip y axis for rows
+	} else {
+		// Flipped orientation (black at bottom)
+		col = 7 - Math.floor(xPercent / 12.5); // Reverse columns
+		row = Math.floor(yPercent / 12.5); // Reverse rows
+	}
 
 	const file = files[col];
 	const rank = ranks[row];

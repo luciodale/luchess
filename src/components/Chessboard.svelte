@@ -6,15 +6,19 @@
   import "../style.css";
   import Coordinates from "./Coordinates.svelte";
 
+  type Props = {
+    color: "white" | "black";
+  };
+
+  const { color }: Props = $props();
+
   let boardNode: HTMLElement;
 
-  const chessBoard = new ChessBoard();
-
+  const chessBoard = new ChessBoard({ color });
   const chessBoardState = chessBoard.board;
-  const history = chessBoard.history;
   const currentMoveIndex = chessBoard.currentMoveIndex;
 
-  $inspect(history);
+  $inspect(chessBoardState);
 
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === "ArrowRight") {
@@ -34,7 +38,7 @@
 
 <div style="padding: 50px 0; position: relative; width: 600px">
   <div class="board" bind:this={boardNode}>
-    <Coordinates />
+    <Coordinates {color} />
 
     <div class="element-pool"></div>
     {#each objectEntries(chessBoardState) as [square, piece]}
@@ -43,9 +47,9 @@
           class={`piece ${piece} square-${square}`}
           aria-label={`${square}-${piece}`}
           ontouchstart={(e) =>
-            handleDragPiece(e, chessBoard, piece, square, boardNode)}
+            handleDragPiece(e, chessBoard, piece, square, boardNode, color)}
           onmousedown={(e) =>
-            handleDragPiece(e, chessBoard, piece, square, boardNode)}
+            handleDragPiece(e, chessBoard, piece, square, boardNode, color)}
         ></button>
       {/if}
     {/each}

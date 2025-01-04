@@ -1,5 +1,6 @@
 import {
 	type TBoard,
+	type TColor,
 	type THistory,
 	type THistoryMove,
 	type TPiece,
@@ -7,27 +8,45 @@ import {
 	type TSpecialMoveEnPassant,
 	type TSpecialMovePromotion,
 	type TSquare,
-	initialPositions,
+	getInitialPositions,
 } from "../constants";
 import { objectEntries } from "../utils";
 import { handleSpecialMove } from "./common";
 import { validatePawnPosition } from "./pawn";
 
 export class ChessBoard {
-	public board: TBoard = $state(initialPositions);
+	public board: TBoard = $state({} as TBoard);
+	public color: TColor = $state("white");
 	public history: THistory = $state([]);
 	public currentMoveIndex = $state(-1);
+
+	constructor({ color }: { color: TColor }) {
+		this.board = getInitialPositions(color);
+		this.color = color;
+	}
 
 	public getPiece(square: TSquare): TPiece | null {
 		return this.board[square];
 	}
 
-	public setPiece(from: TSquare, to: TSquare, piece: TPiece, isReplay = false) {
+	public setPiece(
+		from: TSquare,
+		to: TSquare,
+		piece: TPiece,
+		replayIdx?: number, // Optional parameter for replay index
+	) {
 		const destinationPiece = this.getPiece(to);
+
+		// Determine if we are replaying based on replayIdx
+		const isReplay = replayIdx !== undefined;
+
+		const relevantHistory = isReplay
+			? this.history.slice(0, replayIdx) // Use only history up to the provided index
+			: this.history;
 
 		const isBrowsingHistory = this.currentMoveIndex < this.history.length - 1;
 
-		// can't make a move if browsing history
+		// Prevent moves if browsing history and not a replay
 		if (isBrowsingHistory && !isReplay) return;
 		if (from === to) return;
 
@@ -36,11 +55,6 @@ export class ChessBoard {
 			| TSpecialMoveCastling
 			| TSpecialMovePromotion
 			| undefined;
-
-		const relevantHistory =
-			isBrowsingHistory || isReplay
-				? this.history.slice(0, this.currentMoveIndex)
-				: this.history;
 
 		if (piece === "bp" || piece === "wp") {
 			const result = validatePawnPosition(
@@ -62,7 +76,7 @@ export class ChessBoard {
 			handleSpecialMove(this.board, specialMove);
 		}
 
-		// only add move to history if it's a new move and not a replay
+		// Add move to history if it's not a replay
 		if (!isReplay && !isBrowsingHistory) {
 			const historyMove: THistoryMove = {
 				from,
@@ -76,7 +90,9 @@ export class ChessBoard {
 	}
 
 	private resetBoard() {
-		for (const [square, piece] of objectEntries(initialPositions)) {
+		for (const [square, piece] of objectEntries(
+			getInitialPositions(this.color),
+		)) {
 			this.board[square] = piece;
 		}
 	}
@@ -86,7 +102,7 @@ export class ChessBoard {
 
 		for (let i = 0; i <= this.currentMoveIndex; i++) {
 			const historyMove = this.history[i];
-			this.setPiece(historyMove.from, historyMove.to, historyMove.piece, true);
+			this.setPiece(historyMove.from, historyMove.to, historyMove.piece, i);
 		}
 	}
 

@@ -1,5 +1,5 @@
 import type { ChessBoard } from "../board/Chess.svelte";
-import type { TPiece, TSquare } from "../constants";
+import type { TColor, TPiece, TSquare } from "../constants";
 import { getSquareFromCursorPosition } from "./getSquareFromCursorPosition";
 import { getEventPosition, isHTMLElement } from "./utils";
 
@@ -50,12 +50,20 @@ function handleReleasePiece(
 	chessBoard: ChessBoard,
 	piece: TPiece,
 	square: TSquare,
+	color: TColor,
 ) {
 	const { clientX, clientY } = getEventPosition(e);
 
-	const to = getSquareFromCursorPosition(clientX, clientY, boardNode, square);
+	const to = getSquareFromCursorPosition(
+		clientX,
+		clientY,
+		boardNode,
+		square,
+		color,
+	);
 
-	console.log("to", to);
+	console.log(piece, square, to);
+
 	chessBoard.setPiece(square, to, piece);
 
 	draggedPieceNode.classList.remove("dragging");
@@ -78,6 +86,7 @@ export function handleDragPiece(
 	piece: TPiece,
 	square: TSquare,
 	boardNode: HTMLElement,
+	color: TColor,
 ) {
 	if (!isHTMLElement(e.target) || !isHTMLElement(boardNode)) return;
 
@@ -86,6 +95,7 @@ export function handleDragPiece(
 	}
 
 	const draggedPieceNode = e.target;
+
 	console.log("Start dragging");
 
 	draggedPieceNode.classList.add("dragging");
@@ -108,6 +118,7 @@ export function handleDragPiece(
 			chessBoard,
 			piece,
 			square,
+			color,
 		);
 
 	boardNode.addEventListener("mousemove", movePieceListener);
