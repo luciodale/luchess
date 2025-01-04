@@ -1,11 +1,11 @@
-import { type TSquare, files, ranks } from "../constants";
+import { type TColor, type TSquare, files, ranks } from "../constants";
 
 export function getSquareFromCursorPosition(
 	clientX: number,
 	clientY: number,
 	boardNode: HTMLElement,
 	initSquare: TSquare,
-	color: "white" | "black",
+	color: TColor,
 ) {
 	const { top, left, width, height } = boardNode.getBoundingClientRect();
 
@@ -25,7 +25,7 @@ export function getSquareFromCursorPosition(
 	let col: number;
 	let row: number;
 
-	if (color === "white") {
+	if (color === "w") {
 		// Standard orientation (white at bottom)
 		col = Math.floor(xPercent / 12.5); // Each column is 12.5% of the board
 		row = 7 - Math.floor(yPercent / 12.5); // Flip y axis for rows

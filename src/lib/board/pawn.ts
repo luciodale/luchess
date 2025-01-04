@@ -147,6 +147,7 @@ export function validatePawnPosition(
 		destinationPiece,
 		isWhite,
 	);
+
 	if (!sameColorCaptureResult.valid) {
 		return sameColorCaptureResult;
 	}

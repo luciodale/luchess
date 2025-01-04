@@ -2,5 +2,5 @@
     import Chessboard from "../components/Chessboard.svelte";
 </script>
 
-<Chessboard color="white" />
-<Chessboard color="black" />
+<Chessboard color="w" />
+<Chessboard color="b" />

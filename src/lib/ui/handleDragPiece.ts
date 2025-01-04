@@ -96,8 +96,6 @@ export function handleDragPiece(
 
 	const draggedPieceNode = e.target;
 
-	console.log("Start dragging");
-
 	draggedPieceNode.classList.add("dragging");
 
 	// Run the position logic immediately on mousedown

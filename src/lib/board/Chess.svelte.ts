@@ -8,22 +8,17 @@ import {
 	type TSpecialMoveEnPassant,
 	type TSpecialMovePromotion,
 	type TSquare,
-	getInitialPositions,
+	initialPositions,
 } from "../constants";
 import { objectEntries } from "../utils";
-import { handleSpecialMove } from "./common";
+import { handleSpecialMove, validatePieceColor } from "./common";
 import { validatePawnPosition } from "./pawn";
 
 export class ChessBoard {
-	public board: TBoard = $state({} as TBoard);
-	public color: TColor = $state("white");
+	public board: TBoard = $state(initialPositions);
+	public currentColor: TColor = $state("w");
 	public history: THistory = $state([]);
 	public currentMoveIndex = $state(-1);
-
-	constructor({ color }: { color: TColor }) {
-		this.board = getInitialPositions(color);
-		this.color = color;
-	}
 
 	public getPiece(square: TSquare): TPiece | null {
 		return this.board[square];
@@ -50,6 +45,13 @@ export class ChessBoard {
 		if (isBrowsingHistory && !isReplay) return;
 		if (from === to) return;
 
+		const colorValidation = validatePieceColor(piece, this.currentColor);
+
+		// we don't want to valid color if we are replaying
+		if (!isReplay && !colorValidation.valid) {
+			return colorValidation;
+		}
+
 		let specialMove:
 			| TSpecialMoveEnPassant
 			| TSpecialMoveCastling
@@ -65,12 +67,16 @@ export class ChessBoard {
 				relevantHistory,
 			);
 
-			if (!result.valid) return;
+			if (!result.valid) {
+				console.error(result.message);
+				return;
+			}
 			specialMove = result.specialMove;
 		}
 
 		this.board[from] = null;
 		this.board[to] = piece;
+		this.currentColor = this.currentColor === "w" ? "b" : "w";
 
 		if (specialMove) {
 			handleSpecialMove(this.board, specialMove);
@@ -90,9 +96,7 @@ export class ChessBoard {
 	}
 
 	private resetBoard() {
-		for (const [square, piece] of objectEntries(
-			getInitialPositions(this.color),
-		)) {
+		for (const [square, piece] of objectEntries(initialPositions)) {
 			this.board[square] = piece;
 		}
 	}

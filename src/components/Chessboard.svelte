@@ -7,18 +7,18 @@
   import Coordinates from "./Coordinates.svelte";
 
   type Props = {
-    color: "white" | "black";
+    color: "w" | "b";
   };
 
   const { color }: Props = $props();
 
   let boardNode: HTMLElement;
 
-  const chessBoard = new ChessBoard({ color });
+  const chessBoard = new ChessBoard();
   const chessBoardState = chessBoard.board;
   const currentMoveIndex = chessBoard.currentMoveIndex;
 
-  $inspect(chessBoardState);
+  // $inspect(chessBoardState);
 
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === "ArrowRight") {
@@ -44,7 +44,7 @@
     {#each objectEntries(chessBoardState) as [square, piece]}
       {#if piece}
         <button
-          class={`piece ${piece} square-${square}`}
+          class={`piece ${piece} ${color} square-${square}`}
           aria-label={`${square}-${piece}`}
           ontouchstart={(e) =>
             handleDragPiece(e, chessBoard, piece, square, boardNode, color)}

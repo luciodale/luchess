@@ -1,5 +1,6 @@
 import type {
 	TBoard,
+	TColor,
 	TPiece,
 	TRank,
 	TSpecialMoveCastling,
@@ -47,4 +48,18 @@ export function handleSpecialMove(
 			board[specialMove.rookToSquare] = rookPiece;
 		}
 	}
+}
+
+export function validatePieceColor(
+	piece: TPiece,
+	currentColor: TColor,
+): TValidationResult {
+	const pieceColor = piece[0] === "w" ? "w" : "b";
+	if (pieceColor !== currentColor) {
+		return {
+			valid: false,
+			message: `It's ${currentColor === "w" ? "white" : "black"}'s turn. You can't move a ${pieceColor === "w" ? "white" : "black"} piece.`,
+		};
+	}
+	return { valid: true };
 }
