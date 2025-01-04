@@ -6,7 +6,7 @@
     };
     const { color }: Props = $props();
 
-    const isWhite = color === "white";
+    const isWhite = color === "w";
 </script>
 
 <svg viewBox="0 0 100 100" class="coordinates">
