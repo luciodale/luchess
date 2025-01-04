@@ -11,14 +11,14 @@ describe("getSquareFromCursorPosition", () => {
 		}),
 	} as HTMLElement;
 
-	describe("for white perspective", () => {
+	describe("for w perspective", () => {
 		it("should return 'a8' for cursor position at the top-left corner of the board", () => {
 			const square = getSquareFromCursorPosition(
 				0,
 				0,
 				mockBoardNode,
 				"a6",
-				"white",
+				"w",
 			);
 			expect(square).toBe("a8");
 		});
@@ -29,7 +29,7 @@ describe("getSquareFromCursorPosition", () => {
 				0,
 				mockBoardNode,
 				"a6",
-				"white",
+				"w",
 			);
 			expect(square).toBe("h8");
 		});
@@ -40,7 +40,7 @@ describe("getSquareFromCursorPosition", () => {
 				799,
 				mockBoardNode,
 				"a6",
-				"white",
+				"w",
 			);
 			expect(square).toBe("a1");
 		});
@@ -51,7 +51,7 @@ describe("getSquareFromCursorPosition", () => {
 				799,
 				mockBoardNode,
 				"a6",
-				"white",
+				"w",
 			);
 			expect(square).toBe("h1");
 		});
@@ -62,7 +62,7 @@ describe("getSquareFromCursorPosition", () => {
 				400,
 				mockBoardNode,
 				"a6",
-				"white",
+				"w",
 			);
 			expect(square).toBe("e4");
 		});
@@ -73,7 +73,7 @@ describe("getSquareFromCursorPosition", () => {
 				350,
 				mockBoardNode,
 				"a6",
-				"white",
+				"w",
 			);
 			expect(square).toBe("e5");
 		});
@@ -84,7 +84,7 @@ describe("getSquareFromCursorPosition", () => {
 				100,
 				mockBoardNode,
 				"a6",
-				"white",
+				"w",
 			);
 			expect(square).toBe("b7");
 		});
@@ -95,7 +95,7 @@ describe("getSquareFromCursorPosition", () => {
 				700,
 				mockBoardNode,
 				"a6",
-				"white",
+				"w",
 			);
 			expect(square).toBe("h1");
 		});
@@ -106,7 +106,7 @@ describe("getSquareFromCursorPosition", () => {
 				50,
 				mockBoardNode,
 				"a6",
-				"white",
+				"w",
 			);
 			expect(square).toBe("c8");
 		});
@@ -117,7 +117,7 @@ describe("getSquareFromCursorPosition", () => {
 				750,
 				mockBoardNode,
 				"a6",
-				"white",
+				"w",
 			);
 			expect(square).toBe("f1");
 		});
@@ -128,7 +128,7 @@ describe("getSquareFromCursorPosition", () => {
 				-3,
 				mockBoardNode,
 				"a6",
-				"white",
+				"w",
 			);
 			expect(square).toBe("a6");
 		});
@@ -139,20 +139,20 @@ describe("getSquareFromCursorPosition", () => {
 				900,
 				mockBoardNode,
 				"a6",
-				"white",
+				"w",
 			);
 			expect(square).toBe("a6");
 		});
 	});
 
-	describe("for black perspective", () => {
+	describe("for b perspective", () => {
 		it("should return 'h1' for cursor position at the top-left corner of the board", () => {
 			const square = getSquareFromCursorPosition(
 				0,
 				0,
 				mockBoardNode,
 				"a6",
-				"black",
+				"b",
 			);
 			expect(square).toBe("h1");
 		});
@@ -163,7 +163,7 @@ describe("getSquareFromCursorPosition", () => {
 				0,
 				mockBoardNode,
 				"a6",
-				"black",
+				"b",
 			);
 			expect(square).toBe("a1");
 		});
@@ -174,7 +174,7 @@ describe("getSquareFromCursorPosition", () => {
 				799,
 				mockBoardNode,
 				"a6",
-				"black",
+				"b",
 			);
 			expect(square).toBe("h8");
 		});
@@ -185,7 +185,7 @@ describe("getSquareFromCursorPosition", () => {
 				799,
 				mockBoardNode,
 				"a6",
-				"black",
+				"b",
 			);
 			expect(square).toBe("a8");
 		});
@@ -196,7 +196,7 @@ describe("getSquareFromCursorPosition", () => {
 				400,
 				mockBoardNode,
 				"a6",
-				"black",
+				"b",
 			);
 			expect(square).toBe("d5");
 		});
@@ -207,7 +207,7 @@ describe("getSquareFromCursorPosition", () => {
 				350,
 				mockBoardNode,
 				"a6",
-				"black",
+				"b",
 			);
 			expect(square).toBe("d4");
 		});
@@ -218,7 +218,7 @@ describe("getSquareFromCursorPosition", () => {
 				100,
 				mockBoardNode,
 				"a6",
-				"black",
+				"b",
 			);
 			expect(square).toBe("g2");
 		});
@@ -229,7 +229,7 @@ describe("getSquareFromCursorPosition", () => {
 				700,
 				mockBoardNode,
 				"a6",
-				"black",
+				"b",
 			);
 			expect(square).toBe("a8");
 		});
@@ -240,7 +240,7 @@ describe("getSquareFromCursorPosition", () => {
 				50,
 				mockBoardNode,
 				"a6",
-				"black",
+				"b",
 			);
 			expect(square).toBe("f1");
 		});
@@ -251,7 +251,7 @@ describe("getSquareFromCursorPosition", () => {
 				750,
 				mockBoardNode,
 				"a6",
-				"black",
+				"b",
 			);
 			expect(square).toBe("c8");
 		});
@@ -262,7 +262,7 @@ describe("getSquareFromCursorPosition", () => {
 				-3,
 				mockBoardNode,
 				"a6",
-				"black",
+				"b",
 			);
 			expect(square).toBe("a6");
 		});
@@ -273,7 +273,7 @@ describe("getSquareFromCursorPosition", () => {
 				900,
 				mockBoardNode,
 				"a6",
-				"black",
+				"b",
 			);
 			expect(square).toBe("a6");
 		});
