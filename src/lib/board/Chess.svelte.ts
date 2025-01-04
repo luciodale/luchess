@@ -41,13 +41,13 @@ export class ChessBoard {
 
 		const isBrowsingHistory = this.currentMoveIndex < this.history.length - 1;
 
-		// Prevent moves if browsing history and not a replay
+		// Prevent drag and drop move in the middle of history
 		if (isBrowsingHistory && !isReplay) return;
 		if (from === to) return;
 
 		const colorValidation = validatePieceColor(piece, this.currentColor);
 
-		// we don't want to valid color if we are replaying
+		// We don't want to validate color if we are replaying
 		if (!isReplay && !colorValidation.valid) {
 			return colorValidation;
 		}
