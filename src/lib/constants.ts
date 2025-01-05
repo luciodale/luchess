@@ -139,6 +139,11 @@ export type TSpecialMovePromotion = {
 	rookToSquare?: undefined;
 };
 
+export type TSpecialMove =
+	| TSpecialMoveEnPassant
+	| TSpecialMoveCastling
+	| TSpecialMovePromotion;
+
 export type TValidationResult =
 	| {
 			valid: false;
@@ -148,10 +153,7 @@ export type TValidationResult =
 	| {
 			valid: true;
 			message?: undefined;
-			specialMove?:
-				| TSpecialMoveEnPassant
-				| TSpecialMoveCastling
-				| TSpecialMovePromotion;
+			specialMove?: TSpecialMove;
 	  };
 
 export type THistoryMove = {

@@ -1,18 +1,15 @@
+import { handleSpecialMove, sharedValidation } from "./board/common";
+import { pieceValidation } from "./board/validation";
 import {
 	type TBoard,
 	type TColor,
 	type THistory,
 	type THistoryMove,
 	type TPiece,
-	type TSpecialMoveCastling,
-	type TSpecialMoveEnPassant,
-	type TSpecialMovePromotion,
 	type TSquare,
 	initialPositions,
-} from "../constants";
-import { objectEntries } from "../utils";
-import { handleSpecialMove, validatePieceColor } from "./common";
-import { validatePawnPosition } from "./pawn";
+} from "./constants";
+import { objectEntries } from "./utils";
 
 export class ChessBoard {
 	public board: TBoard = $state(initialPositions);
@@ -25,12 +22,12 @@ export class ChessBoard {
 	}
 
 	public setPiece(
-		from: TSquare,
-		to: TSquare,
+		fromSquare: TSquare,
+		toSquare: TSquare,
 		piece: TPiece,
 		replayIdx?: number, // Optional parameter for replay index
 	) {
-		const destinationPiece = this.getPiece(to);
+		const toPiece = this.getPiece(toSquare);
 
 		// Determine if we are replaying based on replayIdx
 		const isReplay = replayIdx !== undefined;
@@ -43,39 +40,35 @@ export class ChessBoard {
 
 		// Prevent drag and drop move in the middle of history
 		if (isBrowsingHistory && !isReplay) return;
-		if (from === to) return;
+		if (fromSquare === toSquare) return;
 
-		const colorValidation = validatePieceColor(piece, this.currentColor);
+		const sharedValidationRes = sharedValidation(
+			piece,
+			toPiece,
+			this.currentColor,
+		);
 
-		// We don't want to validate color if we are replaying
-		if (!isReplay && !colorValidation.valid) {
-			return colorValidation;
+		// We don't want to run shared validation if we are replaying
+		if (!isReplay && !sharedValidationRes.valid) {
+			return sharedValidationRes;
 		}
 
-		let specialMove:
-			| TSpecialMoveEnPassant
-			| TSpecialMoveCastling
-			| TSpecialMovePromotion
-			| undefined;
+		const { valid, message, specialMove } = pieceValidation({
+			piece,
+			toPiece,
+			fromSquare,
+			toSquare,
+			history: relevantHistory,
+			board: this.board,
+		});
 
-		if (piece === "bp" || piece === "wp") {
-			const result = validatePawnPosition(
-				piece,
-				from,
-				destinationPiece,
-				to,
-				relevantHistory,
-			);
-
-			if (!result.valid) {
-				console.error(result.message);
-				return;
-			}
-			specialMove = result.specialMove;
+		if (!valid) {
+			console.error(message);
+			return message;
 		}
 
-		this.board[from] = null;
-		this.board[to] = piece;
+		this.board[fromSquare] = null;
+		this.board[toSquare] = piece;
 		this.currentColor = this.currentColor === "w" ? "b" : "w";
 
 		if (specialMove) {
@@ -85,8 +78,8 @@ export class ChessBoard {
 		// Add move to history if it's not a replay
 		if (!isReplay && !isBrowsingHistory) {
 			const historyMove: THistoryMove = {
-				from,
-				to,
+				from: fromSquare,
+				to: toSquare,
 				piece,
 			};
 

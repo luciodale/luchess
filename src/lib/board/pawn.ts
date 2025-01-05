@@ -5,15 +5,14 @@ import type {
 	TSquare,
 	TValidationResult,
 } from "../constants";
-import { validateSameColorCapture } from "./common";
 
 function validateMove(
 	from: TSquare,
-	destinationSquare: TSquare,
+	toSquare: TSquare,
 	isWhite: boolean,
 ): TValidationResult {
 	const originRank = Number(from[1]);
-	const destinationRank = Number(destinationSquare[1]);
+	const destinationRank = Number(toSquare[1]);
 
 	if (isWhite) {
 		if (destinationRank <= originRank) {
@@ -61,18 +60,18 @@ function validateMove(
 
 function validateCapture(
 	from: TSquare,
-	destinationPiece: TPiece | null,
-	destinationSquare: TSquare,
+	toPiece: TPiece | null,
+	toSquare: TSquare,
 	isWhite: boolean,
 	history: THistory,
 ): TValidationResult {
-	const isDiagonal = destinationSquare[0] !== from[0];
+	const isDiagonal = toSquare[0] !== from[0];
 
 	if (isDiagonal) {
 		if (
-			!destinationPiece ||
-			(isWhite && destinationPiece[0] !== "b") ||
-			(!isWhite && destinationPiece[0] !== "w")
+			!toPiece ||
+			(isWhite && toPiece[0] !== "b") ||
+			(!isWhite && toPiece[0] !== "w")
 		) {
 			// Check for en passant capture
 			if (history.length > 0) {
@@ -85,8 +84,8 @@ function validateCapture(
 
 				const originFile = from[0];
 				const originRank = Number(from[1]);
-				const destFile = destinationSquare[0];
-				const destRank = Number(destinationSquare[1]);
+				const destFile = toSquare[0];
+				const destRank = Number(toSquare[1]);
 
 				const prevMoveFromRank = Number(prevSquareFrom[1]);
 				const prevMoveToRank = Number(prevSquareTo[1]);
@@ -120,7 +119,7 @@ function validateCapture(
 			};
 		}
 	} else {
-		if (destinationPiece) {
+		if (toPiece) {
 			return {
 				valid: false,
 				message: `${
@@ -134,39 +133,18 @@ function validateCapture(
 }
 
 export function validatePawnPosition(
-	originPiece: TPawn,
-	from: TSquare,
-	destinationPiece: TPiece | null,
-	destinationSquare: TSquare,
+	piece: TPawn,
+	fromSquare: TSquare,
+	toPiece: TPiece | null,
+	toSquare: TSquare,
 	history: THistory,
 ): TValidationResult {
-	const isWhite = originPiece[0] === "w";
+	const isWhite = piece[0] === "w";
 
-	const sameColorCaptureResult = validateSameColorCapture(
-		originPiece,
-		destinationPiece,
-		isWhite,
-	);
-
-	if (!sameColorCaptureResult.valid) {
-		return sameColorCaptureResult;
-	}
-
-	const moveResult = validateMove(from, destinationSquare, isWhite);
+	const moveResult = validateMove(fromSquare, toSquare, isWhite);
 	if (!moveResult.valid) {
 		return moveResult;
 	}
 
-	const captureResult = validateCapture(
-		from,
-		destinationPiece,
-		destinationSquare,
-		isWhite,
-		history,
-	);
-	if (!captureResult.valid) {
-		return captureResult;
-	}
-
-	return captureResult;
+	return validateCapture(fromSquare, toPiece, toSquare, isWhite, history);
 }

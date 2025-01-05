@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { ChessBoard } from "../lib/board/Chess.svelte.js";
+  import { ChessBoard } from "../lib/Chess.svelte.js";
   import { handleDragPiece } from "../lib/ui/handleDragPiece";
   import { objectEntries } from "../lib/utils";
   import "../style.css";
