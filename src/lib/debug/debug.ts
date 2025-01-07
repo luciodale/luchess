@@ -7,7 +7,7 @@ type TDebugKey =
 	| "all"; // Enable all debug logs
 
 const debugFlags: { [key in TDebugKey]?: boolean } = {
-	all: true,
+	all: false,
 	moves: false,
 	castle: false,
 	check: false,

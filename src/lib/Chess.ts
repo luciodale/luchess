@@ -2,6 +2,7 @@ import { handleSpecialMove, sharedValidation } from "./board/common";
 import { pieceValidation } from "./board/validation";
 import {
 	type TBoard,
+	type TChessBoard,
 	type TColor,
 	type THistory,
 	type THistoryMove,
@@ -13,10 +14,51 @@ import { debug } from "./debug/debug";
 import { objectEntries } from "./utils";
 
 export class ChessBoard {
-	public board: TBoard = $state(initialPositions);
-	public currentColor: TColor = $state("w");
-	public history: THistory = $state([]);
-	public currentMoveIndex = $state(-1);
+	private getBoardState: () => TChessBoard;
+	private setBoardState: (newState: TChessBoard) => unknown;
+
+	constructor({
+		getBoardState,
+		setBoardState,
+	}: {
+		getBoardState: () => TChessBoard;
+		setBoardState: (newState: TChessBoard) => unknown;
+	}) {
+		this.getBoardState = getBoardState;
+		this.setBoardState = setBoardState;
+	}
+
+	private get board(): TBoard {
+		return this.getBoardState().board;
+	}
+
+	private set board(newBoard: TBoard) {
+		this.setBoardState({ ...this.getBoardState(), board: newBoard });
+	}
+
+	private get currentColor(): TColor {
+		return this.getBoardState().currentColor;
+	}
+
+	private set currentColor(newColor: TColor) {
+		this.setBoardState({ ...this.getBoardState(), currentColor: newColor });
+	}
+
+	private get history(): THistory {
+		return this.getBoardState().history;
+	}
+
+	private set history(newHistory: THistory) {
+		this.setBoardState({ ...this.getBoardState(), history: newHistory });
+	}
+
+	private get currentMoveIndex(): number {
+		return this.getBoardState().currentMoveIndex;
+	}
+
+	private set currentMoveIndex(newIndex: number) {
+		this.setBoardState({ ...this.getBoardState(), currentMoveIndex: newIndex });
+	}
 
 	public getPiece(square: TSquare): TPiece | null {
 		return this.board[square];
@@ -71,12 +113,16 @@ export class ChessBoard {
 		debug("board", `Moving ${piece} from ${fromSquare} to ${toSquare}`);
 		debug("board", "new board", this.board);
 
-		this.board[fromSquare] = null;
-		this.board[toSquare] = piece;
+		const newBoard = { ...this.board };
+		newBoard[fromSquare] = null;
+		newBoard[toSquare] = piece;
+		this.board = newBoard;
+
 		this.currentColor = this.currentColor === "w" ? "b" : "w";
 
 		if (specialMove) {
-			handleSpecialMove(this.board, specialMove);
+			handleSpecialMove(newBoard, specialMove);
+			this.board = newBoard;
 		}
 
 		// Add move to history if it's not a replay
@@ -87,15 +133,17 @@ export class ChessBoard {
 				piece,
 			};
 
-			this.history.push(historyMove);
-			this.currentMoveIndex++;
+			this.history = [...this.history, historyMove];
+			this.currentMoveIndex = this.currentMoveIndex + 1;
 		}
 	}
 
 	private resetBoard() {
+		const newBoard = { ...this.board };
 		for (const [square, piece] of objectEntries(initialPositions)) {
-			this.board[square] = piece;
+			newBoard[square] = piece;
 		}
+		this.board = newBoard;
 	}
 
 	private replayMoves() {
@@ -109,13 +157,25 @@ export class ChessBoard {
 
 	public undo() {
 		if (this.currentMoveIndex < 0) return;
-		this.currentMoveIndex--;
+		this.currentMoveIndex = this.currentMoveIndex - 1;
 		this.replayMoves();
 	}
 
 	public redo() {
 		if (this.currentMoveIndex >= this.history.length - 1) return;
-		this.currentMoveIndex++;
+		this.currentMoveIndex = this.currentMoveIndex + 1;
 		this.replayMoves();
+	}
+
+	public setFreeMode(positions: Partial<Record<TSquare, TPiece>>) {
+		const newBoard = { ...this.board };
+		for (const [square, piece] of objectEntries(positions)) {
+			if (piece === undefined) {
+				newBoard[square] = null;
+				continue;
+			}
+			newBoard[square] = piece;
+		}
+		this.board = newBoard;
 	}
 }

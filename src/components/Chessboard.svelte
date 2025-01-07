@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { ChessBoard } from "../lib/Chess.svelte.js";
+  import { ChessBoard } from "../lib/Chess.js";
+  import { type TChessBoard, defaultState } from "../lib/constants.js";
   import { handleDragPiece } from "../lib/ui/handleDragPiece";
   import { objectEntries } from "../lib/utils";
   import "../style.css";
@@ -14,9 +15,17 @@
 
   let boardNode: HTMLElement;
 
-  const chessBoard = new ChessBoard();
-  const chessBoardState = chessBoard.board;
-  const currentMoveIndex = chessBoard.currentMoveIndex;
+  const boardState: TChessBoard = $state(defaultState);
+
+  const chessBoard = new ChessBoard({
+    getBoardState: () => boardState,
+    setBoardState: (newState) => {
+      boardState.board = newState.board;
+      boardState.currentColor = newState.currentColor;
+      boardState.history = newState.history;
+      boardState.currentMoveIndex = newState.currentMoveIndex;
+    },
+  });
 
   // $inspect(chessBoardState);
 
@@ -39,9 +48,8 @@
 <div style="padding: 50px 0; position: relative; width: 600px">
   <div class="board" bind:this={boardNode}>
     <Coordinates {color} />
-
     <div class="element-pool"></div>
-    {#each objectEntries(chessBoardState) as [square, piece]}
+    {#each objectEntries(boardState.board) as [square, piece]}
       {#if piece}
         <button
           class={`piece ${piece} ${color} square-${square}`}
@@ -58,7 +66,7 @@
 
 <div class="controls">
   <button onclick={() => chessBoard.undo()}> Previous </button>
-  <span>{currentMoveIndex}</span>
+  <span>{boardState.currentMoveIndex}</span>
   <button onclick={() => chessBoard.redo()}> Next </button>
 </div>
 

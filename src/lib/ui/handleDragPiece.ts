@@ -1,4 +1,4 @@
-import type { ChessBoard } from "../Chess.svelte";
+import type { ChessBoard } from "../Chess";
 import type { TColor, TPiece, TSquare } from "../constants";
 import { debug } from "../debug/debug";
 import { getSquareFromCursorPosition } from "./getSquareFromCursorPosition";

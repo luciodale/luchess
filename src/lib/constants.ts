@@ -163,3 +163,17 @@ export type THistoryMove = {
 };
 
 export type THistory = THistoryMove[];
+
+export type TChessBoard = {
+	board: TBoard;
+	history: THistory;
+	currentColor: TColor;
+	currentMoveIndex: number;
+};
+
+export const defaultState = {
+	board: initialPositions,
+	currentColor: "w",
+	history: [],
+	currentMoveIndex: -1,
+} as TChessBoard;
