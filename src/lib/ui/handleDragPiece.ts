@@ -1,5 +1,6 @@
 import type { ChessBoard } from "../Chess.svelte";
 import type { TColor, TPiece, TSquare } from "../constants";
+import { debug } from "../debug/debug";
 import { getSquareFromCursorPosition } from "./getSquareFromCursorPosition";
 import { getEventPosition, isHTMLElement } from "./utils";
 
@@ -63,7 +64,7 @@ function handleReleasePiece(
 	);
 
 	console.log(piece, square, to);
-
+	debug("drag", `Moving ${piece} from ${square} to ${to}`);
 	chessBoard.setPiece(square, to, piece);
 
 	draggedPieceNode.classList.remove("dragging");

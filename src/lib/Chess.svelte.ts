@@ -9,6 +9,7 @@ import {
 	type TSquare,
 	initialPositions,
 } from "./constants";
+import { debug } from "./debug/debug";
 import { objectEntries } from "./utils";
 
 export class ChessBoard {
@@ -66,6 +67,9 @@ export class ChessBoard {
 			console.error(message);
 			return message;
 		}
+
+		debug("board", `Moving ${piece} from ${fromSquare} to ${toSquare}`);
+		debug("board", "new board", this.board);
 
 		this.board[fromSquare] = null;
 		this.board[toSquare] = piece;

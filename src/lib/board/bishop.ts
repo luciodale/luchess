@@ -15,7 +15,7 @@ function validateBishopMove(
 	if (!isValidMove) {
 		return {
 			valid: false,
-			message: "Invalid bishop move",
+			message: "Bishop can only move diagonally",
 		};
 	}
 
