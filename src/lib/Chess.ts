@@ -3,7 +3,7 @@ import {
 	handleSpecialMove,
 	isCheckmate,
 	isStalemate,
-	validateTurnAndSameColorCapture,
+	sharedValidation,
 } from "./board/shared";
 import { pieceValidation } from "./board/validation";
 import type {
@@ -168,15 +168,19 @@ export class ChessBoard {
 		if (isBrowsingHistory && !isReplay) return;
 		if (fromSquare === toSquare) return;
 
-		const validateTurnAndSameColorCaptureRes = validateTurnAndSameColorCapture({
+		const sharedValidationRes = sharedValidation({
 			piece,
 			toPiece,
+			board: this.board,
 			currentColor: this.currentColor,
+			fromSquare,
+			history: relevantHistory,
+			toSquare,
 		});
 
-		if (!isReplay && !validateTurnAndSameColorCaptureRes.valid) {
-			console.error(validateTurnAndSameColorCaptureRes.message);
-			return validateTurnAndSameColorCaptureRes.message;
+		if (!isReplay && !sharedValidationRes.valid) {
+			console.error(sharedValidationRes.message);
+			return sharedValidationRes.message;
 		}
 
 		const { valid, message, specialMove } = pieceValidation({
@@ -185,7 +189,6 @@ export class ChessBoard {
 			fromSquare,
 			toSquare,
 			history: relevantHistory,
-			currentColor: this.currentColor,
 			board: this.board,
 		});
 

@@ -43,10 +43,14 @@ export function generateSinglePieceMoves(
 	for (const toSquare of squares) {
 		if (toSquare === fromSquare) continue;
 
-		const res = validateTurnAndSameColorCapture({
+		const res = sharedValidation({
 			piece,
 			toPiece: board[toSquare],
+			fromSquare,
+			toSquare,
+			board,
 			currentColor: piece[0] === "w" ? "w" : "b",
+			history,
 		});
 		if (!res.valid) {
 			continue;
@@ -59,7 +63,6 @@ export function generateSinglePieceMoves(
 			toSquare,
 			history,
 			board,
-			currentColor: piece[0] === "w" ? "w" : "b",
 		});
 
 		if (valid) {
@@ -203,18 +206,6 @@ function findKingPosition(board: TBoard, color: TColor): TSquare | null {
 	return null;
 }
 
-function simulateMove(
-	board: TBoard,
-	fromSquare: TSquare,
-	toSquare: TSquare,
-	piece: TPiece,
-): TBoard {
-	const newBoard = { ...board };
-	newBoard[fromSquare] = null;
-	newBoard[toSquare] = piece;
-	return newBoard;
-}
-
 export function validateKingCheck(
 	piece: TPiece,
 	fromSquare: TSquare,
@@ -314,6 +305,47 @@ export function validateKingCheckAndPromotion({
 	);
 	if (!checkValidation.valid) {
 		return checkValidation;
+	}
+
+	return { valid: true };
+}
+
+export function sharedValidation({
+	piece,
+	toPiece,
+	fromSquare,
+	toSquare,
+	board,
+	currentColor,
+	history,
+}: {
+	piece: TPiece;
+	toPiece: TPiece | null;
+	fromSquare: TSquare;
+	toSquare: TSquare;
+	board: TBoard;
+	currentColor: TColor;
+	history: THistory;
+}): TValidationResult {
+	const result = validateTurnAndSameColorCapture({
+		piece,
+		toPiece,
+		currentColor,
+	});
+	if (!result.valid) {
+		return result;
+	}
+
+	const resultKingCheck = validateKingCheckAndPromotion({
+		piece,
+		fromSquare,
+		toSquare,
+		board,
+		currentColor,
+		history,
+	});
+	if (!resultKingCheck.valid) {
+		return resultKingCheck;
 	}
 
 	return { valid: true };

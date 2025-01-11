@@ -1,6 +1,5 @@
 import type {
 	TBoard,
-	TColor,
 	THistory,
 	TPiece,
 	TSquare,
@@ -12,7 +11,6 @@ import { validateKnightPosition } from "./knight";
 import { validatePawnPosition } from "./pawn";
 import { validateQueenPosition } from "./queen";
 import { validateRookPosition } from "./rook";
-import { validateKingCheckAndPromotion } from "./shared";
 
 export function pieceValidation({
 	piece,
@@ -21,7 +19,6 @@ export function pieceValidation({
 	toSquare,
 	history,
 	board,
-	currentColor,
 }: {
 	piece: TPiece;
 	toPiece: TPiece | null;
@@ -29,21 +26,7 @@ export function pieceValidation({
 	toSquare: TSquare;
 	history: THistory;
 	board: TBoard;
-	currentColor: TColor;
 }): TValidationResult {
-	const sharedValidationRes = validateKingCheckAndPromotion({
-		piece,
-		fromSquare,
-		toSquare,
-		board,
-		currentColor,
-		history,
-	});
-
-	if (!sharedValidationRes.valid) {
-		return sharedValidationRes;
-	}
-
 	switch (piece) {
 		case "bp":
 		case "wp":
