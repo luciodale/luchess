@@ -1,5 +1,10 @@
 import { isDraw } from "./board/draw";
-import { handleSpecialMove, isCheckmate, isStalemate } from "./board/shared";
+import {
+	handleSpecialMove,
+	isCheckmate,
+	isStalemate,
+	validateTurnAndSameColorCapture,
+} from "./board/shared";
 import { pieceValidation } from "./board/validation";
 import type {
 	TBoard,
@@ -163,6 +168,17 @@ export class ChessBoard {
 		if (isBrowsingHistory && !isReplay) return;
 		if (fromSquare === toSquare) return;
 
+		const validateTurnAndSameColorCaptureRes = validateTurnAndSameColorCapture({
+			piece,
+			toPiece,
+			currentColor: this.currentColor,
+		});
+
+		if (!isReplay && !validateTurnAndSameColorCaptureRes.valid) {
+			console.error(validateTurnAndSameColorCaptureRes.message);
+			return validateTurnAndSameColorCaptureRes.message;
+		}
+
 		const { valid, message, specialMove } = pieceValidation({
 			piece,
 			toPiece,
@@ -171,7 +187,6 @@ export class ChessBoard {
 			history: relevantHistory,
 			currentColor: this.currentColor,
 			board: this.board,
-			isReplay,
 		});
 
 		if (!valid) {

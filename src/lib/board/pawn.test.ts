@@ -451,6 +451,51 @@ describe("Pawn Movement and Capture Tests", () => {
 		expect(result.specialMove?.destinationPieceSquare).toBe("d5");
 	});
 
+	test("White pawn en passant capture wrong side", () => {
+		Chess.setFreeMode({ e5: "wp", d5: "bp" });
+		const history = [
+			{
+				piece: "bp",
+				from: "d7",
+				to: "d5",
+			},
+		] satisfies THistory;
+		const result = validatePawnPosition(
+			"wp",
+			"e5",
+			null,
+			"f6",
+			history,
+			Chess.board,
+		);
+
+		/*
+    Initial position:
+    8 · · · · · · · ·
+    7 · · · · · · · ·
+    6 · · · · · · · ·
+    5 · · · ♟ ♙ · · ·
+    4 · · · · · · · ·
+    3 · · · · · · · ·
+    2 · · · · · · · ·
+    1 · · · · · · · ·
+      a b c d e f g h
+
+    Final position:
+    8 · · · · · · · ·
+    7 · · · · · · · ·
+    6 · · · · · ♙ · ·
+    5 · · · · · · · ·
+    4 · · · · · · · ·
+    3 · · · · · · · ·
+    2 · · · · · · · ·
+    1 · · · · · · · ·
+      a b c d e f g h
+    */
+
+		expect(result.valid).toBe(false);
+	});
+
 	test("Black pawn en passant capture", () => {
 		Chess.setFreeMode({ e4: "bp", f4: "wp" });
 		const history = [{ piece: "wp", from: "f2", to: "f4" }] satisfies THistory;

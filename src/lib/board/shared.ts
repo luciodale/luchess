@@ -43,6 +43,15 @@ export function generateSinglePieceMoves(
 	for (const toSquare of squares) {
 		if (toSquare === fromSquare) continue;
 
+		const res = validateTurnAndSameColorCapture({
+			piece,
+			toPiece: board[toSquare],
+			currentColor: piece[0] === "w" ? "w" : "b",
+		});
+		if (!res.valid) {
+			continue;
+		}
+
 		const { valid } = pieceValidation({
 			piece,
 			toPiece: board[toSquare],
@@ -248,22 +257,15 @@ export function validateKingCheck(
 				valid: true,
 			};
 }
-export function sharedValidation({
+
+export function validateTurnAndSameColorCapture({
 	piece,
 	toPiece,
-	fromSquare,
-	toSquare,
-	board,
 	currentColor,
-	history,
 }: {
 	piece: TPiece;
 	toPiece: TPiece | null;
-	fromSquare: TSquare;
-	toSquare: TSquare;
-	board: TBoard;
 	currentColor: TColor;
-	history: THistory;
 }): TValidationResult {
 	// 1) Validate turn color
 	const turnValidation = validateTurnColor(piece, currentColor);
@@ -281,6 +283,24 @@ export function sharedValidation({
 		return sameColorCaptureValidation;
 	}
 
+	return { valid: true };
+}
+
+export function validateKingCheckAndPromotion({
+	piece,
+	fromSquare,
+	toSquare,
+	board,
+	currentColor,
+	history,
+}: {
+	piece: TPiece;
+	fromSquare: TSquare;
+	toSquare: TSquare;
+	board: TBoard;
+	currentColor: TColor;
+	history: THistory;
+}): TValidationResult {
 	// 3) Validate king check logic:
 	//    - If the king is in check, only a king move that removes check is valid
 	//    - Cannot move king into check

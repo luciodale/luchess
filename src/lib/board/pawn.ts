@@ -101,6 +101,31 @@ function validateCapture(
 	});
 
 	if (isPawnDoubleStep && isAdjacentFile && isSameRank) {
+		const expectedRank = isWhite ? 6 : 3;
+		const actualRank = Number(toSquare[1]);
+
+		if (actualRank !== expectedRank) {
+			debug("moves", "Invalid: Wrong en passant capture square");
+			return { valid: false, message: "Invalid en passant capture square" };
+		}
+
+		const lastMoveFileNum = lastMove.to[0].charCodeAt(0);
+		const fromFileNum = from[0].charCodeAt(0);
+		const targetFileNum = toSquare[0].charCodeAt(0);
+
+		// Validate one square diagonal move
+		if (Math.abs(targetFileNum - fromFileNum) !== 1) {
+			return { valid: false, message: "Invalid en passant capture direction" };
+		}
+
+		// Validate capture is towards the captured pawn
+		if (
+			targetFileNum !==
+			(lastMoveFileNum > fromFileNum ? fromFileNum + 1 : fromFileNum - 1)
+		) {
+			return { valid: false, message: "Invalid en passant capture direction" };
+		}
+
 		debug("moves", "Valid: En passant capture");
 		return {
 			valid: true,

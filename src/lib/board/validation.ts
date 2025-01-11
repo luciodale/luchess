@@ -12,7 +12,7 @@ import { validateKnightPosition } from "./knight";
 import { validatePawnPosition } from "./pawn";
 import { validateQueenPosition } from "./queen";
 import { validateRookPosition } from "./rook";
-import { sharedValidation } from "./shared";
+import { validateKingCheckAndPromotion } from "./shared";
 
 export function pieceValidation({
 	piece,
@@ -22,7 +22,6 @@ export function pieceValidation({
 	history,
 	board,
 	currentColor,
-	isReplay,
 }: {
 	piece: TPiece;
 	toPiece: TPiece | null;
@@ -31,15 +30,9 @@ export function pieceValidation({
 	history: THistory;
 	board: TBoard;
 	currentColor: TColor;
-	isReplay?: boolean;
 }): TValidationResult {
-	if (isReplay) {
-		return { valid: true };
-	}
-
-	const sharedValidationRes = sharedValidation({
+	const sharedValidationRes = validateKingCheckAndPromotion({
 		piece,
-		toPiece,
 		fromSquare,
 		toSquare,
 		board,

@@ -3,8 +3,9 @@ import { ChessBoard } from "../Chess";
 import { type TChessBoard, defaultState } from "../constants";
 import {
 	setAllPiecesToNull,
-	sharedValidation,
 	validateKingCheck,
+	validateKingCheckAndPromotion,
+	validateTurnAndSameColorCapture,
 } from "./shared";
 
 describe("Shared Validation", () => {
@@ -32,14 +33,10 @@ describe("Shared Validation", () => {
 		// biome-ignore lint/style/noNonNullAssertion: we know it's set
 		const piece = Chess.board?.e4!; // "wp"
 		// It's black's turn, but a white piece tries to move
-		const result = sharedValidation({
+		const result = validateTurnAndSameColorCapture({
 			piece,
 			toPiece: null,
-			fromSquare: "e4",
-			toSquare: "e5", // Arbitrary attempted move
-			board: Chess.board,
 			currentColor: "b",
-			history: [],
 		});
 		expect(result.valid).toBe(false);
 		expect(result.message).toBe(
@@ -57,14 +54,10 @@ describe("Shared Validation", () => {
 		const piece = Chess.board.e4!; // "wp"
 		// biome-ignore lint/style/noNonNullAssertion: we know it's set
 		const toPiece = Chess.board.e5!; // "wp"
-		const result = sharedValidation({
+		const result = validateTurnAndSameColorCapture({
 			piece,
 			toPiece,
-			fromSquare: "e4",
-			toSquare: "e5",
-			board: Chess.board,
 			currentColor: "w",
-			history: [],
 		});
 		expect(result.valid).toBe(false);
 	});
@@ -80,14 +73,11 @@ describe("Shared Validation", () => {
 		const piece = Chess.board.e4!; // "wp"
 		// biome-ignore lint/style/noNonNullAssertion: we know it's set
 		const toPiece = Chess.board.e5!; // "bp"
-		const result = sharedValidation({
+		const result = validateTurnAndSameColorCapture({
 			piece,
 			toPiece,
-			fromSquare: "e4",
-			toSquare: "e5",
-			board: Chess.board,
+
 			currentColor: "w",
-			history: [],
 		});
 
 		expect(result.valid).toBe(true);
@@ -152,9 +142,8 @@ describe("Shared Validation", () => {
 		1 · · · · ♔ · · ·
 		  a b c d e f g h
 		*/
-		const result = sharedValidation({
+		const result = validateKingCheckAndPromotion({
 			piece: "wb",
-			toPiece: null,
 			fromSquare: "e2",
 			toSquare: "d3",
 			board: Chess.board,
@@ -182,9 +171,8 @@ describe("Shared Validation", () => {
 		1 · · · · · · · ·
 		  a b c d e f g h
 		*/
-		const result = sharedValidation({
+		const result = validateKingCheckAndPromotion({
 			piece: "wn",
-			toPiece: null,
 			fromSquare: "f4",
 			toSquare: "d5",
 			board: Chess.board,
@@ -212,9 +200,8 @@ describe("Shared Validation", () => {
 		1 · · · · ♔ · · ·
 		  a b c d e f g h
 		*/
-		const result = sharedValidation({
+		const result = validateKingCheckAndPromotion({
 			piece: "wb",
-			toPiece: null,
 			fromSquare: "e2",
 			toSquare: "f3",
 			board: Chess.board,
@@ -242,9 +229,8 @@ describe("Shared Validation", () => {
 		1 · · · · · · · ·
 		  a b c d e f g h
 		*/
-		const result = sharedValidation({
+		const result = validateKingCheckAndPromotion({
 			piece: "wp",
-			toPiece: null,
 			fromSquare: "d4",
 			toSquare: "d5",
 			board: Chess.board,
@@ -272,9 +258,8 @@ describe("Shared Validation", () => {
 		1 · · · · · · · ·
 		  a b c d e f g h
 		*/
-		const result = sharedValidation({
+		const result = validateKingCheckAndPromotion({
 			piece: "wn",
-			toPiece: null,
 			fromSquare: "e4",
 			toSquare: "g5",
 			board: Chess.board,
@@ -303,9 +288,8 @@ describe("Shared Validation", () => {
 		1 · · · · · · · ·
 		  a b c d e f g h
 		*/
-		const result = sharedValidation({
+		const result = validateKingCheckAndPromotion({
 			piece: "wn",
-			toPiece: null,
 			fromSquare: "f4",
 			toSquare: "d3",
 			board: Chess.board,
