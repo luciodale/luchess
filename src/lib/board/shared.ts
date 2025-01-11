@@ -31,13 +31,20 @@ function generateBoardSquares(): TSquare[] {
 	return squares;
 }
 
+type TValidMove = {
+	piece: TPiece;
+	from: TSquare;
+	to: TSquare;
+	capture?: boolean;
+};
+
 export function generateSinglePieceMoves(
 	board: TBoard,
 	fromSquare: TSquare,
 	piece: TPiece,
 	history: THistory,
 ) {
-	const validMoves: { piece: TPiece; from: TSquare; to: TSquare }[] = [];
+	const validMoves: TValidMove[] = [];
 	const squares = generateBoardSquares();
 
 	for (const toSquare of squares) {
@@ -66,7 +73,12 @@ export function generateSinglePieceMoves(
 		});
 
 		if (valid) {
-			validMoves.push({ piece, from: fromSquare, to: toSquare });
+			validMoves.push({
+				piece,
+				from: fromSquare,
+				to: toSquare,
+				capture: !!board[toSquare],
+			});
 		}
 	}
 

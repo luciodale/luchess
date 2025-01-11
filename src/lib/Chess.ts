@@ -66,7 +66,7 @@ export class ChessBoard {
 		this.setBoardState({ ...this.getBoardState(), currentColor: newColor });
 	}
 
-	private get history(): THistory {
+	public get history(): THistory {
 		return this.getBoardState().history;
 	}
 
