@@ -469,6 +469,19 @@
 	opacity: 0.5;
 }
 
+.hint {
+	background-color: rgba(0, 0, 0, 0.14);
+	padding: 4.2%;
+}
+
+.capture-hint,
+.hint {
+	background-clip: content-box;
+	border-radius: 50%;
+	box-sizing: border-box;
+	pointer-events: none;
+}
+.capture-hint,
 .highlight,
 .hint {
 	height: 12.5%;

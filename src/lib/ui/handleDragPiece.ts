@@ -1,7 +1,8 @@
 import type { ChessBoard } from "../Chess";
-import type { TColor, TPiece, TSquare } from "../constants";
+import type { TColor, TDragState, TPiece, TSquare } from "../constants";
 import { debug } from "../debug/debug";
 import { getSquareFromCursorPosition } from "./getSquareFromCursorPosition";
+import { showHints } from "./handleHints";
 import { getEventPosition, isHTMLElement } from "./utils";
 
 // listeners to track the piece being dragged around the board and released
@@ -70,30 +71,39 @@ function handleReleasePiece(
 	draggedPieceNode.classList.remove("dragging");
 	draggedPieceNode.style.transform = "";
 
-	const cell = boardNode?.querySelector(".highlight");
-
-	if (cell?.contains(e.target as Node)) {
-		console.log("in contains");
-
-		if (cell) cell.classList.value = "element-pool";
-	}
-
 	removeListeners(boardNode);
 }
 
-export function handleDragPiece(
-	e: MouseEvent | TouchEvent,
-	chessBoard: ChessBoard,
-	piece: TPiece,
-	square: TSquare,
-	boardNode: HTMLElement,
-	color: TColor,
-) {
+export function handleDragPiece({
+	e,
+	chessBoard,
+	piece,
+	square,
+	boardNode,
+	color,
+	dragState,
+}: {
+	e: MouseEvent | TouchEvent;
+	chessBoard: ChessBoard;
+	piece: TPiece;
+	square: TSquare;
+	boardNode: HTMLElement;
+	color: TColor;
+	dragState: TDragState;
+}) {
 	if (!isHTMLElement(e.target) || !isHTMLElement(boardNode)) return;
 
 	if (e instanceof TouchEvent) {
 		e.preventDefault();
 	}
+
+	showHints({
+		piece,
+		fromSquare: square,
+		board: chessBoard.board,
+		history: chessBoard.history,
+		dragState,
+	});
 
 	const draggedPieceNode = e.target;
 
@@ -101,11 +111,6 @@ export function handleDragPiece(
 
 	// Run the position logic immediately on mousedown
 	handleMovePiece(e, draggedPieceNode, boardNode);
-
-	// Add event listeners for continuous updates
-	const cell = boardNode?.querySelector(".element-pool");
-
-	cell?.classList.add("highlight", `square-${square}`);
 
 	movePieceListener = (e: MouseEvent | TouchEvent) =>
 		handleMovePiece(e, draggedPieceNode, boardNode);

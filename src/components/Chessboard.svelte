@@ -1,7 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { ChessBoard } from "../lib/Chess.js";
-  import { type TChessBoard, defaultState } from "../lib/constants.js";
+  import {
+    type TChessBoard,
+    type TDragState,
+    defaultDragState,
+    defaultState,
+  } from "../lib/constants.js";
   import { handleDragPiece } from "../lib/ui/handleDragPiece";
   import { objectEntries } from "../lib/utils";
   import "../style.css";
@@ -19,6 +24,8 @@
     ...defaultState,
     currentColor: "w",
   });
+
+  const dragState: TDragState = $state(defaultDragState);
 
   const chessBoard = new ChessBoard({
     getBoardState: () => boardState,
@@ -60,16 +67,39 @@
 <div style="padding: 50px 0; position: relative; width: 600px">
   <div class="board" bind:this={boardNode}>
     <Coordinates {color} />
-    <div class="element-pool"></div>
+    {#if dragState.piece}
+      <div class={`${color} highlight square-${dragState.square}`}></div>
+    {/if}
+    {#each dragState.validMoves as move}
+      <div
+        class={`${color} ${move.isCapture ? "capture-hint" : "hint"} square-${move.square}`}
+      ></div>
+    {/each}
     {#each objectEntries(boardState.board) as [square, piece]}
       {#if piece}
         <button
           class={`piece ${piece} ${color} square-${square}`}
           aria-label={`${square}-${piece}`}
           ontouchstart={(e) =>
-            handleDragPiece(e, chessBoard, piece, square, boardNode, color)}
+            handleDragPiece({
+              e,
+              chessBoard,
+              piece,
+              square,
+              boardNode,
+              color,
+              dragState,
+            })}
           onmousedown={(e) =>
-            handleDragPiece(e, chessBoard, piece, square, boardNode, color)}
+            handleDragPiece({
+              e,
+              chessBoard,
+              piece,
+              square,
+              boardNode,
+              color,
+              dragState,
+            })}
         ></button>
       {/if}
     {/each}

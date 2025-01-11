@@ -208,3 +208,15 @@ export type TEventHandlers = Partial<{
 
 export const THREEFOLD_REPETITION_COUNT = 3;
 export const MAX_MOVES_TO_CHECK = 8;
+
+export type TDragState = {
+	piece: TPiece | null;
+	square: TSquare | null;
+	validMoves: { square: TSquare; isCapture: boolean }[];
+};
+
+export const defaultDragState: TDragState = {
+	piece: null,
+	square: null,
+	validMoves: [],
+};
