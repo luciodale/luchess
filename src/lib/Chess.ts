@@ -1,14 +1,17 @@
-import { handleSpecialMove, sharedValidation } from "./board/common";
+import { isDraw } from "./board/draw";
+import { handleSpecialMove, isCheckmate, isStalemate } from "./board/shared";
 import { pieceValidation } from "./board/validation";
-import {
-	type TBoard,
-	type TChessBoard,
-	type TColor,
-	type THistory,
-	type THistoryMove,
-	type TPiece,
-	type TSquare,
-	initialPositions,
+import type {
+	TBoard,
+	TChessBoard,
+	TColor,
+	TEventHandlers,
+	TEventMap,
+	TGameState,
+	THistory,
+	THistoryMove,
+	TPiece,
+	TSquare,
 } from "./constants";
 import { debug } from "./debug/debug";
 import { objectEntries } from "./utils";
@@ -16,19 +19,33 @@ import { objectEntries } from "./utils";
 export class ChessBoard {
 	private getBoardState: () => TChessBoard;
 	private setBoardState: (newState: TChessBoard) => unknown;
+	private initialBoard: TBoard;
+	private eventHandlers?: TEventHandlers;
 
 	constructor({
 		getBoardState,
 		setBoardState,
+		eventHandlers,
 	}: {
 		getBoardState: () => TChessBoard;
 		setBoardState: (newState: TChessBoard) => unknown;
+		eventHandlers?: TEventHandlers;
 	}) {
 		this.getBoardState = getBoardState;
 		this.setBoardState = setBoardState;
+		this.initialBoard = getBoardState().board;
+
+		this.setBoardState({
+			...this.getBoardState(),
+			gameState: "active",
+		});
+
+		if (eventHandlers) {
+			this.eventHandlers = eventHandlers;
+		}
 	}
 
-	private get board(): TBoard {
+	public get board(): TBoard {
 		return this.getBoardState().board;
 	}
 
@@ -64,12 +81,73 @@ export class ChessBoard {
 		return this.board[square];
 	}
 
+	private get gameState(): TGameState {
+		return this.getBoardState().gameState;
+	}
+
+	private set gameState(newState: TGameState) {
+		this.setBoardState({ ...this.getBoardState(), gameState: newState });
+	}
+
+	public on<K extends keyof TEventMap>(
+		event: K,
+		handler: (payload: TEventMap[K]) => void,
+	) {
+		if (!this.eventHandlers) {
+			this.eventHandlers = {};
+		}
+		this.eventHandlers[event] = handler as TEventHandlers[K];
+	}
+
+	private emit<K extends keyof TEventMap>(event: K, payload: TEventMap[K]) {
+		const handler = this.eventHandlers?.[event];
+		if (handler) {
+			handler(payload);
+		}
+	}
+
+	// Game State Checks
+	private checkGameEnd() {
+		if (isCheckmate(this.board, this.currentColor, this.history)) {
+			this.gameState = "checkmate";
+			this.emit("onGameEnd", {
+				type: "checkmate",
+				winner: this.currentColor === "w" ? "black" : "white",
+			});
+			return;
+		}
+
+		if (isStalemate(this.board, this.currentColor, this.history)) {
+			this.gameState = "stalemate";
+			this.emit("onGameEnd", {
+				type: "stalemate",
+				message: "Game ended in stalemate",
+			});
+		}
+
+		if (isDraw(this.board, this.history)) {
+			this.gameState = "draw";
+			this.emit("onGameEnd", {
+				type: "draw",
+				message: "Game ended in draw",
+			});
+		}
+	}
+
 	public setPiece(
 		fromSquare: TSquare,
 		toSquare: TSquare,
 		piece: TPiece,
 		replayIdx?: number, // Optional parameter for replay index
 	) {
+		// Don't allow moves if game is over
+		if (this.gameState !== "active" && !replayIdx) {
+			return {
+				valid: false,
+				message: `Game is over (${this.gameState})`,
+			};
+		}
+
 		const toPiece = this.getPiece(toSquare);
 
 		// Determine if we are replaying based on replayIdx
@@ -85,24 +163,15 @@ export class ChessBoard {
 		if (isBrowsingHistory && !isReplay) return;
 		if (fromSquare === toSquare) return;
 
-		const sharedValidationRes = sharedValidation(
-			piece,
-			toPiece,
-			this.currentColor,
-		);
-
-		// We don't want to run shared validation if we are replaying
-		if (!isReplay && !sharedValidationRes.valid) {
-			return sharedValidationRes;
-		}
-
 		const { valid, message, specialMove } = pieceValidation({
 			piece,
 			toPiece,
 			fromSquare,
 			toSquare,
 			history: relevantHistory,
+			currentColor: this.currentColor,
 			board: this.board,
+			isReplay,
 		});
 
 		if (!valid) {
@@ -131,16 +200,20 @@ export class ChessBoard {
 				from: fromSquare,
 				to: toSquare,
 				piece,
+				capture: !!toPiece,
 			};
+
+			this.emit("onMove", historyMove);
 
 			this.history = [...this.history, historyMove];
 			this.currentMoveIndex = this.currentMoveIndex + 1;
+			this.checkGameEnd();
 		}
 	}
 
 	private resetBoard() {
 		const newBoard = { ...this.board };
-		for (const [square, piece] of objectEntries(initialPositions)) {
+		for (const [square, piece] of objectEntries(this.initialBoard)) {
 			newBoard[square] = piece;
 		}
 		this.board = newBoard;
@@ -167,7 +240,7 @@ export class ChessBoard {
 		this.replayMoves();
 	}
 
-	public setFreeMode(positions: Partial<Record<TSquare, TPiece>>) {
+	public setFreeMode(positions: Partial<Record<TSquare, TPiece | null>>) {
 		const newBoard = { ...this.board };
 		for (const [square, piece] of objectEntries(positions)) {
 			if (piece === undefined) {

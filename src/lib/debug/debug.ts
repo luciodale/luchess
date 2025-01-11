@@ -2,6 +2,8 @@ type TDebugKey =
 	| "moves" // Basic movement validation
 	| "castle" // Castling logic
 	| "check" // Check/checkmate validation
+	| "checkmate" // Checkmate validation
+	| "stalemate" // Stalemate validation
 	| "board" // Board state changes
 	| "drag" // Drag and drop events
 	| "all"; // Enable all debug logs

@@ -22,37 +22,42 @@ function validateKingMove({
 	toSquare: TSquare;
 	history: THistory;
 }): TValidationResult {
-	debug(
-		"moves",
-		`Validating ${currentColor} king move from ${fromSquare} to ${toSquare}`,
-	);
-
 	const fileDiff = Math.abs(fromSquare.charCodeAt(0) - toSquare.charCodeAt(0));
 	const rankDiff = Math.abs(
 		Number.parseInt(fromSquare[1]) - Number.parseInt(toSquare[1]),
 	);
 
-	debug("moves", "Move metrics:", { fileDiff, rankDiff });
-
+	// Validate basic king movement
 	const isValidMove = fileDiff <= 1 && rankDiff <= 1;
 	if (!isValidMove) {
-		debug("moves", "Invalid: King moving more than one square");
 		return {
 			valid: false,
 			message: "King can only move one square in any direction",
 		};
 	}
 
-	debug("check", `Checking if square ${toSquare} is under attack`);
-	if (isSquareUnderAttack({ board, currentColor, history, toSquare })) {
-		debug("check", `Square ${toSquare} is under attack`);
+	// Simulate the capture move
+	const simulatedBoard = {
+		...board,
+		[fromSquare]: null,
+		[toSquare]: `${currentColor}k`,
+	};
+
+	// Check if king would be under attack after the move
+	if (
+		isSquareUnderAttack({
+			board: simulatedBoard,
+			currentColor,
+			history,
+			toSquare,
+		})
+	) {
 		return {
 			valid: false,
-			message: "King cannot move to a square that is under attack",
+			message: "Move leaves king under check",
 		};
 	}
 
-	debug("moves", "Valid king move");
 	return { valid: true };
 }
 

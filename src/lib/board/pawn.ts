@@ -1,4 +1,5 @@
 import type {
+	TBoard,
 	THistory,
 	TPawn,
 	TPiece,
@@ -8,46 +9,41 @@ import type {
 import { debug } from "../debug/debug";
 
 function validateMove(
-	from: TSquare,
+	fromSquare: TSquare,
 	toSquare: TSquare,
 	isWhite: boolean,
+	board: TBoard,
 ): TValidationResult {
-	debug(
-		"moves",
-		`Validating ${isWhite ? "white" : "black"} pawn move from ${from} to ${toSquare}`,
-	);
+	const fromRank = Number.parseInt(fromSquare[1]);
+	const toRank = Number.parseInt(toSquare[1]);
+	const rankDiff = isWhite ? toRank - fromRank : fromRank - toRank;
 
-	const originRank = Number(from[1]);
-	const destinationRank = Number(toSquare[1]);
-	const rankDiff = destinationRank - originRank;
-	const fileDiff = Math.abs(toSquare.charCodeAt(0) - from.charCodeAt(0));
-
-	debug("moves", "Move metrics:", {
-		rankDiff,
-		fileDiff,
-		originRank,
-		destinationRank,
-	});
-
-	if (fileDiff !== 0) {
-		debug("moves", "Invalid: Pawn moving sideways without capture");
-		return { valid: false, message: "Pawns can only move forward" };
+	// Single step forward
+	if (rankDiff === 1) {
+		if (board[toSquare]) {
+			return { valid: false, message: "Path is blocked" };
+		}
+		return { valid: true };
 	}
 
-	if (isWhite) {
-		if (rankDiff !== 1 && (originRank !== 2 || rankDiff !== 2)) {
-			debug("moves", "Invalid: White pawn invalid move distance");
+	// Double step from starting position
+	if (rankDiff === 2) {
+		if ((isWhite && fromRank !== 2) || (!isWhite && fromRank !== 7)) {
 			return { valid: false, message: "Invalid pawn move" };
 		}
-	} else {
-		if (rankDiff !== -1 && (originRank !== 7 || rankDiff !== -2)) {
-			debug("moves", "Invalid: Black pawn invalid move distance");
-			return { valid: false, message: "Invalid pawn move" };
+
+		const file = fromSquare[0];
+		const intermediateRank = isWhite ? fromRank + 1 : fromRank - 1;
+		const intermediateSquare = `${file}${intermediateRank}` as TSquare;
+
+		if (board[intermediateSquare] || board[toSquare]) {
+			return { valid: false, message: "Path is blocked" };
 		}
+
+		return { valid: true };
 	}
 
-	debug("moves", "Valid pawn move");
-	return { valid: true };
+	return { valid: false, message: "Invalid pawn move" };
 }
 
 function validateCapture(
@@ -125,6 +121,7 @@ export function validatePawnPosition(
 	toPiece: TPiece | null,
 	toSquare: TSquare,
 	history: THistory,
+	board: TBoard,
 ): TValidationResult {
 	const isWhite = piece[0] === "w";
 
@@ -132,5 +129,5 @@ export function validatePawnPosition(
 		return validateCapture(fromSquare, toPiece, toSquare, isWhite, history);
 	}
 
-	return validateMove(fromSquare, toSquare, isWhite);
+	return validateMove(fromSquare, toSquare, isWhite, board);
 }

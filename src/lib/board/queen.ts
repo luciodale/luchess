@@ -1,40 +1,52 @@
 import type { TBoard, TSquare, TValidationResult } from "../constants";
 import { debug } from "../debug/debug";
-import { validateBishopPosition } from "./bishop";
-import { validateRookPosition } from "./rook";
 
 function validateQueenMove(
 	fromSquare: TSquare,
 	toSquare: TSquare,
 	board: TBoard,
 ): TValidationResult {
-	debug("moves", `Validating queen move from ${fromSquare} to ${toSquare}`);
+	const fromFile = fromSquare.charCodeAt(0);
+	const toFile = toSquare.charCodeAt(0);
+	const fromRank = Number.parseInt(fromSquare[1]);
+	const toRank = Number.parseInt(toSquare[1]);
 
-	const fileDiff = Math.abs(fromSquare.charCodeAt(0) - toSquare.charCodeAt(0));
-	const rankDiff = Math.abs(
-		Number.parseInt(fromSquare[1]) - Number.parseInt(toSquare[1]),
+	const fileDiff = Math.abs(fromFile - toFile);
+	const rankDiff = Math.abs(fromRank - toRank);
+
+	// Queen must move either diagonally or straight
+	const isValidMove = fileDiff === rankDiff || fileDiff === 0 || rankDiff === 0;
+	if (!isValidMove) {
+		return { valid: false, message: "Invalid queen move" };
+	}
+
+	const fileDirection = Math.sign(toFile - fromFile);
+	const rankDirection = Math.sign(toRank - fromRank);
+
+	// Generate arrays of file and rank positions
+	const files = Array.from(
+		{ length: Math.abs(toFile - fromFile) },
+		(_, i) => fromFile + fileDirection * (i + 1),
+	);
+	const ranks = Array.from(
+		{ length: Math.abs(toRank - fromRank) },
+		(_, i) => fromRank + rankDirection * (i + 1),
 	);
 
-	debug("moves", "Move metrics:", { fileDiff, rankDiff });
+	// Check path squares
+	const maxLength = Math.max(files.length, ranks.length);
+	for (let i = 0; i < maxLength - 1; i++) {
+		const file = files[i] || fromFile;
+		const rank = ranks[i] || fromRank;
+		const square = `${String.fromCharCode(file)}${rank}` as TSquare;
 
-	const isDiagonalMove = fileDiff === rankDiff;
-	const isStraightMove = fileDiff === 0 || rankDiff === 0;
-	debug("moves", "Move type:", { isDiagonalMove, isStraightMove });
-
-	if (isDiagonalMove) {
-		debug("moves", "Validating as bishop move");
-		return validateBishopPosition(fromSquare, toSquare, board);
-	}
-	if (isStraightMove) {
-		debug("moves", "Validating as rook move");
-		return validateRookPosition(fromSquare, toSquare, board);
+		if (board[square]) {
+			debug("moves", `Queen path blocked at ${square}`);
+			return { valid: false, message: "Path is blocked" };
+		}
 	}
 
-	debug("moves", "Invalid: Neither diagonal nor straight move");
-	return {
-		valid: false,
-		message: "Invalid queen move",
-	};
+	return { valid: true };
 }
 
 export function validateQueenPosition(
@@ -42,6 +54,5 @@ export function validateQueenPosition(
 	toSquare: TSquare,
 	board: TBoard,
 ): TValidationResult {
-	debug("moves", `Validating queen position from ${fromSquare} to ${toSquare}`);
 	return validateQueenMove(fromSquare, toSquare, board);
 }

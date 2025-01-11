@@ -160,15 +160,19 @@ export type THistoryMove = {
 	from: TSquare;
 	to: TSquare;
 	piece: TPiece;
+	capture?: boolean;
 };
 
 export type THistory = THistoryMove[];
+
+export type TGameState = "active" | "checkmate" | "stalemate" | "draw";
 
 export type TChessBoard = {
 	board: TBoard;
 	history: THistory;
 	currentColor: TColor;
 	currentMoveIndex: number;
+	gameState: TGameState;
 };
 
 export const defaultState = {
@@ -176,4 +180,31 @@ export const defaultState = {
 	currentColor: "w",
 	history: [],
 	currentMoveIndex: -1,
-} as TChessBoard;
+	gameState: "active",
+} satisfies TChessBoard;
+
+export type TGameEndPayload =
+	| { type: "checkmate"; winner: "white" | "black"; message?: undefined }
+	| { type: "stalemate"; message: string; winner?: undefined }
+	| {
+			type: "draw";
+			winner?: undefined;
+			message: string;
+	  };
+
+export type TEventMap = {
+	onGameEnd: TGameEndPayload;
+	onMove: { from: TSquare; to: TSquare; piece: TPiece };
+};
+
+export type TEventName = keyof TEventMap;
+export type TEventHandler<K extends TEventName> = (
+	payload: TEventMap[K],
+) => unknown;
+
+export type TEventHandlers = Partial<{
+	[K in keyof TEventMap]: (payload: TEventMap[K]) => unknown;
+}>;
+
+export const THREEFOLD_REPETITION_COUNT = 3;
+export const MAX_MOVES_TO_CHECK = 8;

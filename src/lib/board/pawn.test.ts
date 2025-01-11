@@ -1,13 +1,14 @@
 import { beforeEach, describe, expect, test } from "vitest";
 import { ChessBoard } from "../Chess";
-import { type TChessBoard, defaultState } from "../constants";
+import { type TChessBoard, type THistory, defaultState } from "../constants";
 import { validatePawnPosition } from "./pawn";
+import { setAllPiecesToNull } from "./shared";
 
 describe("Pawn Movement and Capture Tests", () => {
 	let Chess: ChessBoard;
 
 	beforeEach(() => {
-		let store = defaultState;
+		let store: TChessBoard = defaultState;
 		const getBoardState = () => store;
 		const setBoardState = (newState: TChessBoard) => {
 			store = newState;
@@ -17,11 +18,20 @@ describe("Pawn Movement and Capture Tests", () => {
 			getBoardState: getBoardState,
 			setBoardState: setBoardState,
 		});
+
+		setAllPiecesToNull(Chess);
 	});
 
 	test("White pawn single step forward", () => {
 		Chess.setFreeMode({ e2: "wp" });
-		const result = validatePawnPosition("wp", "e2", null, "e3", []);
+		const result = validatePawnPosition(
+			"wp",
+			"e2",
+			null,
+			"e3",
+			[],
+			Chess.board,
+		);
 
 		/*
     Initial position:
@@ -52,7 +62,14 @@ describe("Pawn Movement and Capture Tests", () => {
 
 	test("White pawn double step forward from starting position", () => {
 		Chess.setFreeMode({ e2: "wp" });
-		const result = validatePawnPosition("wp", "e2", null, "e4", []);
+		const result = validatePawnPosition(
+			"wp",
+			"e2",
+			null,
+			"e4",
+			[],
+			Chess.board,
+		);
 
 		/*
     Initial position:
@@ -83,7 +100,14 @@ describe("Pawn Movement and Capture Tests", () => {
 
 	test("White pawn invalid double step from non-starting position", () => {
 		Chess.setFreeMode({ e3: "wp" });
-		const result = validatePawnPosition("wp", "e3", null, "e5", []);
+		const result = validatePawnPosition(
+			"wp",
+			"e3",
+			null,
+			"e5",
+			[],
+			Chess.board,
+		);
 
 		/*
     Initial position:
@@ -115,7 +139,14 @@ describe("Pawn Movement and Capture Tests", () => {
 
 	test("Black pawn single step forward", () => {
 		Chess.setFreeMode({ e7: "bp" });
-		const result = validatePawnPosition("bp", "e7", null, "e6", []);
+		const result = validatePawnPosition(
+			"bp",
+			"e7",
+			null,
+			"e6",
+			[],
+			Chess.board,
+		);
 
 		/*
     Initial position:
@@ -146,7 +177,14 @@ describe("Pawn Movement and Capture Tests", () => {
 
 	test("Black pawn double step forward from starting position", () => {
 		Chess.setFreeMode({ e7: "bp" });
-		const result = validatePawnPosition("bp", "e7", null, "e5", []);
+		const result = validatePawnPosition(
+			"bp",
+			"e7",
+			null,
+			"e5",
+			[],
+			Chess.board,
+		);
 
 		/*
     Initial position:
@@ -177,7 +215,14 @@ describe("Pawn Movement and Capture Tests", () => {
 
 	test("Black pawn invalid double step from non-starting position", () => {
 		Chess.setFreeMode({ e6: "bp" });
-		const result = validatePawnPosition("bp", "e6", null, "e4", []);
+		const result = validatePawnPosition(
+			"bp",
+			"e6",
+			null,
+			"e4",
+			[],
+			Chess.board,
+		);
 
 		/*
     Initial position:
@@ -209,7 +254,14 @@ describe("Pawn Movement and Capture Tests", () => {
 
 	test("White pawn capture to the right", () => {
 		Chess.setFreeMode({ e4: "wp", f5: "bp" });
-		const result = validatePawnPosition("wp", "e4", "bp", "f5", []);
+		const result = validatePawnPosition(
+			"wp",
+			"e4",
+			"bp",
+			"f5",
+			[],
+			Chess.board,
+		);
 
 		/*
     Initial position:
@@ -240,7 +292,14 @@ describe("Pawn Movement and Capture Tests", () => {
 
 	test("White pawn capture to the left", () => {
 		Chess.setFreeMode({ e4: "wp", d5: "bp" });
-		const result = validatePawnPosition("wp", "e4", "bp", "d5", []);
+		const result = validatePawnPosition(
+			"wp",
+			"e4",
+			"bp",
+			"d5",
+			[],
+			Chess.board,
+		);
 
 		/*
     Initial position:
@@ -271,7 +330,14 @@ describe("Pawn Movement and Capture Tests", () => {
 
 	test("Black pawn capture to the right", () => {
 		Chess.setFreeMode({ e5: "bp", f4: "wp" });
-		const result = validatePawnPosition("bp", "e5", "wp", "f4", []);
+		const result = validatePawnPosition(
+			"bp",
+			"e5",
+			"wp",
+			"f4",
+			[],
+			Chess.board,
+		);
 
 		/*
     Initial position:
@@ -302,7 +368,14 @@ describe("Pawn Movement and Capture Tests", () => {
 
 	test("Black pawn capture to the left", () => {
 		Chess.setFreeMode({ e5: "bp", d4: "wp" });
-		const result = validatePawnPosition("bp", "e5", "wp", "d4", []);
+		const result = validatePawnPosition(
+			"bp",
+			"e5",
+			"wp",
+			"d4",
+			[],
+			Chess.board,
+		);
 
 		/*
     Initial position:
@@ -334,9 +407,20 @@ describe("Pawn Movement and Capture Tests", () => {
 	test("White pawn en passant capture", () => {
 		Chess.setFreeMode({ e5: "wp", d5: "bp" });
 		const history = [
-			{ piece: "bp" as const, from: "d7" as const, to: "d5" as const },
-		];
-		const result = validatePawnPosition("wp", "e5", null, "d6", history);
+			{
+				piece: "bp",
+				from: "d7",
+				to: "d5",
+			},
+		] satisfies THistory;
+		const result = validatePawnPosition(
+			"wp",
+			"e5",
+			null,
+			"d6",
+			history,
+			Chess.board,
+		);
 
 		/*
     Initial position:
@@ -369,10 +453,15 @@ describe("Pawn Movement and Capture Tests", () => {
 
 	test("Black pawn en passant capture", () => {
 		Chess.setFreeMode({ e4: "bp", f4: "wp" });
-		const history = [
-			{ piece: "wp" as const, from: "f2" as const, to: "f4" as const },
-		];
-		const result = validatePawnPosition("bp", "e4", null, "f3", history);
+		const history = [{ piece: "wp", from: "f2", to: "f4" }] satisfies THistory;
+		const result = validatePawnPosition(
+			"bp",
+			"e4",
+			null,
+			"f3",
+			history,
+			Chess.board,
+		);
 
 		/*
     Initial position:
@@ -405,7 +494,14 @@ describe("Pawn Movement and Capture Tests", () => {
 
 	test("Invalid pawn move: backwards", () => {
 		Chess.setFreeMode({ e4: "wp" });
-		const result = validatePawnPosition("wp", "e4", null, "e3", []);
+		const result = validatePawnPosition(
+			"wp",
+			"e4",
+			null,
+			"e3",
+			[],
+			Chess.board,
+		);
 
 		/*
     Initial position:
@@ -437,7 +533,14 @@ describe("Pawn Movement and Capture Tests", () => {
 
 	test("Invalid pawn move: sideways", () => {
 		Chess.setFreeMode({ e4: "wp" });
-		const result = validatePawnPosition("wp", "e4", null, "f4", []);
+		const result = validatePawnPosition(
+			"wp",
+			"e4",
+			null,
+			"f4",
+			[],
+			Chess.board,
+		);
 
 		/*
     Initial position:
@@ -469,7 +572,14 @@ describe("Pawn Movement and Capture Tests", () => {
 
 	test("Invalid pawn capture: no piece to capture", () => {
 		Chess.setFreeMode({ e4: "wp" });
-		const result = validatePawnPosition("wp", "e4", null, "f5", []);
+		const result = validatePawnPosition(
+			"wp",
+			"e4",
+			null,
+			"f5",
+			[],
+			Chess.board,
+		);
 
 		/*
     Initial position:
@@ -502,10 +612,25 @@ describe("Pawn Movement and Capture Tests", () => {
 	test("Invalid en passant: not immediately after double step", () => {
 		Chess.setFreeMode({ e5: "wp", d5: "bp" });
 		const history = [
-			{ piece: "bp" as const, from: "d7" as const, to: "d5" as const },
-			{ piece: "wn" as const, from: "g1" as const, to: "f3" as const },
-		];
-		const result = validatePawnPosition("wp", "e5", null, "d6", history);
+			{
+				piece: "bp",
+				from: "d7",
+				to: "d5",
+			},
+			{
+				piece: "wn",
+				from: "g1",
+				to: "f3",
+			},
+		] satisfies THistory;
+		const result = validatePawnPosition(
+			"wp",
+			"e5",
+			null,
+			"d6",
+			history,
+			Chess.board,
+		);
 
 		/*
     Initial position:
@@ -533,5 +658,39 @@ describe("Pawn Movement and Capture Tests", () => {
 
 		expect(result.valid).toBe(false);
 		expect(result.message).toBe("No piece to capture");
+	});
+
+	test("White pawn blocked from double step by piece on first square", () => {
+		Chess.setFreeMode({
+			e2: "wp",
+			e3: "bp",
+		});
+		const result = validatePawnPosition(
+			"wp",
+			"e2",
+			null,
+			"e4",
+			[],
+			Chess.board,
+		);
+		expect(result.valid).toBe(false);
+		expect(result.message).toBe("Path is blocked");
+	});
+
+	test("Black pawn blocked from double step by piece on first square", () => {
+		Chess.setFreeMode({
+			e7: "bp",
+			e6: "wp",
+		});
+		const result = validatePawnPosition(
+			"bp",
+			"e7",
+			null,
+			"e5",
+			[],
+			Chess.board,
+		);
+		expect(result.valid).toBe(false);
+		expect(result.message).toBe("Path is blocked");
 	});
 });

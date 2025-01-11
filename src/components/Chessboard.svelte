@@ -15,7 +15,10 @@
 
   let boardNode: HTMLElement;
 
-  const boardState: TChessBoard = $state(defaultState);
+  const boardState: TChessBoard = $state({
+    ...defaultState,
+    currentColor: "w",
+  });
 
   const chessBoard = new ChessBoard({
     getBoardState: () => boardState,
@@ -25,9 +28,18 @@
       boardState.history = newState.history;
       boardState.currentMoveIndex = newState.currentMoveIndex;
     },
+    eventHandlers: {
+      onMove: (move) => {
+        console.log("Move: ", move);
+      },
+
+      onGameEnd: (result) => {
+        console.log("Game End: ", result);
+      },
+    },
   });
 
-  // $inspect(chessBoardState);
+  $inspect(boardState.board);
 
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === "ArrowRight") {
