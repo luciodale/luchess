@@ -481,7 +481,7 @@ describe("Pawn Movement and Capture Tests", () => {
     1 · · · · · · · ·
       a b c d e f g h
 
-    Final position:
+    Final position: (Invalid move)
     8 · · · · · · · ·
     7 · · · · · · · ·
     6 · · · · · ♙ · ·
@@ -537,14 +537,15 @@ describe("Pawn Movement and Capture Tests", () => {
 		expect(result.specialMove?.destinationPieceSquare).toBe("f4");
 	});
 
-	test("Invalid pawn move: backwards", () => {
-		Chess.setFreeMode({ e4: "wp" });
+	test("Black pawn en passant capture wrong side", () => {
+		Chess.setFreeMode({ e4: "bp", f4: "wp" });
+		const history = [{ piece: "wp", from: "f2", to: "f4" }] satisfies THistory;
 		const result = validatePawnPosition(
-			"wp",
+			"bp",
 			"e4",
 			null,
-			"e3",
-			[],
+			"d3",
+			history,
 			Chess.board,
 		);
 
@@ -554,7 +555,7 @@ describe("Pawn Movement and Capture Tests", () => {
     7 · · · · · · · ·
     6 · · · · · · · ·
     5 · · · · · · · ·
-    4 · · · · ♙ · · ·
+    4 · · · · ♟ ♙ · ·
     3 · · · · · · · ·
     2 · · · · · · · ·
     1 · · · · · · · ·
@@ -566,23 +567,31 @@ describe("Pawn Movement and Capture Tests", () => {
     6 · · · · · · · ·
     5 · · · · · · · ·
     4 · · · · · · · ·
-    3 · · · · ♙ · · ·
+    3 · · · ♟ · · · ·
     2 · · · · · · · ·
     1 · · · · · · · ·
       a b c d e f g h
     */
 
 		expect(result.valid).toBe(false);
-		expect(result.message).toBe("Invalid pawn move");
 	});
 
-	test("Invalid pawn move: sideways", () => {
-		Chess.setFreeMode({ e4: "wp" });
-		const result = validatePawnPosition(
+	test("Invalid pawn move: backwards", () => {
+		Chess.setFreeMode({ e4: "wp", b4: "bp" });
+		const result1 = validatePawnPosition(
 			"wp",
 			"e4",
 			null,
-			"f4",
+			"e3",
+			[],
+			Chess.board,
+		);
+
+		const result2 = validatePawnPosition(
+			"bp",
+			"b4",
+			null,
+			"b5",
 			[],
 			Chess.board,
 		);
@@ -593,7 +602,57 @@ describe("Pawn Movement and Capture Tests", () => {
     7 · · · · · · · ·
     6 · · · · · · · ·
     5 · · · · · · · ·
-    4 · · · · ♙ · · ·
+    4 · ♟ · · ♙ · · ·
+    3 · · · · · · · ·
+    2 · · · · · · · ·
+    1 · · · · · · · ·
+      a b c d e f g h
+
+    Final position: (Invalid move)
+    8 · · · · · · · ·
+    7 · · · · · · · ·
+    6 · · · · · · · ·
+    5 · ♟ · · · · · ·
+    4 · · · · · · · ·
+    3 · · · · ♙ · · ·
+    2 · · · · · · · ·
+    1 · · · · · · · ·
+      a b c d e f g h
+    */
+
+		expect(result1.valid).toBe(false);
+		expect(result1.message).toBe("Invalid pawn move");
+		expect(result2.valid).toBe(false);
+		expect(result2.message).toBe("Invalid pawn move");
+	});
+
+	test("Invalid pawn move: sideways", () => {
+		Chess.setFreeMode({ e4: "wp", f4: "bp" });
+		const result1 = validatePawnPosition(
+			"wp",
+			"e4",
+			null,
+			"f4",
+			[],
+			Chess.board,
+		);
+
+		const result2 = validatePawnPosition(
+			"bp",
+			"b4",
+			null,
+			"c4",
+			[],
+			Chess.board,
+		);
+
+		/*
+    Initial position:
+    8 · · · · · · · ·
+    7 · · · · · · · ·
+    6 · · · · · · · ·
+    5 · · · · · · · ·
+    4 · ♟ · · ♙ · · ·
     3 · · · · · · · ·
     2 · · · · · · · ·
     1 · · · · · · · ·
@@ -604,15 +663,17 @@ describe("Pawn Movement and Capture Tests", () => {
     7 · · · · · · · ·
     6 · · · · · · · ·
     5 · · · · · · · ·
-    4 · · · · · ♙ · ·
+    4 · · ♟ · · ♙ · ·
     3 · · · · · · · ·
     2 · · · · · · · ·
     1 · · · · · · · ·
       a b c d e f g h
     */
 
-		expect(result.valid).toBe(false);
-		expect(result.message).toBe("Wrong direction for capture");
+		expect(result1.valid).toBe(false);
+		expect(result1.message).toBe("Wrong direction for capture");
+		expect(result2.valid).toBe(false);
+		expect(result2.message).toBe("Wrong direction for capture");
 	});
 
 	test("Invalid pawn capture: no piece to capture", () => {
@@ -718,6 +779,31 @@ describe("Pawn Movement and Capture Tests", () => {
 			[],
 			Chess.board,
 		);
+
+		/*
+    Initial position:
+    8 · · · · · · · ·
+    7 · · · · · · · ·
+    6 · · · · · · · ·
+    5 · · · · · · · ·
+    4 · · · · · · · ·
+    3 · · · · ♟ · · ·
+    2 · · · · ♙ · · ·
+    1 · · · · · · · ·
+      a b c d e f g h
+
+    Final position: (Invalid move)
+    8 · · · · · · · ·
+    7 · · · · · · · ·
+    6 · · · · · · · ·
+    5 · · · · · · · ·
+    4 · · · · ♙ · · ·
+    3 · · · · ♟ · · ·
+    2 · · · · · · · ·
+    1 · · · · · · · ·
+      a b c d e f g h
+    */
+
 		expect(result.valid).toBe(false);
 		expect(result.message).toBe("Path is blocked");
 	});
@@ -735,6 +821,31 @@ describe("Pawn Movement and Capture Tests", () => {
 			[],
 			Chess.board,
 		);
+
+		/*
+    Initial position:
+    8 · · · · · · · ·
+    7 · · · · ♟ · · ·
+    6 · · · · ♙ · · ·
+    5 · · · · · · · ·
+    4 · · · · · · · ·
+    3 · · · · · · · ·
+    2 · · · · · · · ·
+    1 · · · · · · · ·
+      a b c d e f g h
+
+    Final position: (Invalid move)
+    8 · · · · · · · ·
+    7 · · · · · · · ·
+    6 · · · · ♙ · · ·
+    5 · · · · ♟ · · ·
+    4 · · · · · · · ·
+    3 · · · · · · · ·
+    2 · · · · · · · ·
+    1 · · · · · · · ·
+      a b c d e f g h
+    */
+
 		expect(result.valid).toBe(false);
 		expect(result.message).toBe("Path is blocked");
 	});

@@ -318,6 +318,7 @@ export function validateKingCheckAndPromotion({
 
 	return { valid: true };
 }
+
 export function isPawnPromotion(piece: TPiece, to: TSquare): boolean {
 	const destinationRank = Number(to[1]) as TRank;
 	return (

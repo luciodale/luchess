@@ -26,18 +26,31 @@ describe("Shared Validation", () => {
 	});
 
 	test("Wrong turn color", () => {
+		const e4 = "wp";
 		Chess.setFreeMode({
-			e4: "wp", // White pawn
+			e4,
 		});
 
-		// biome-ignore lint/style/noNonNullAssertion: we know it's set
-		const piece = Chess.board?.e4!; // "wp"
+		const piece = e4;
 		// It's black's turn, but a white piece tries to move
 		const result = validateTurnAndSameColorCapture({
 			piece,
 			toPiece: null,
 			currentColor: "b",
 		});
+
+		/*
+		8 · · · · · · · ·
+		7 · · · · · · · ·
+		6 · · · · · · · ·
+		5 · · · · · · · ·
+		4 · · · · ♙ · · ·
+		3 · · · · · · · ·
+		2 · · · · · · · ·
+		1 · · · · · · · ·
+		  a b c d e f g h
+		*/
+
 		expect(result.valid).toBe(false);
 		expect(result.message).toBe(
 			"It's black's turn. You can't move a white piece.",
@@ -45,54 +58,80 @@ describe("Shared Validation", () => {
 	});
 
 	test("Same-color capture", () => {
+		const e4 = "wp";
+		const f5 = "wp";
 		Chess.setFreeMode({
-			e4: "wp",
-			e5: "wp",
+			e4,
 		});
 
-		// biome-ignore lint/style/noNonNullAssertion: we know it's set
-		const piece = Chess.board.e4!; // "wp"
-		// biome-ignore lint/style/noNonNullAssertion: we know it's set
-		const toPiece = Chess.board.e5!; // "wp"
+		const piece = e4;
+		const toPiece = f5;
+
 		const result = validateTurnAndSameColorCapture({
 			piece,
 			toPiece,
 			currentColor: "w",
 		});
+
+		/*
+		8 · · · · · · · ·
+		7 · · · · · · · ·
+		6 · · · · · · · ·
+		5 · · · · · ♙ · ·
+		4 · · · · ♙ · · ·
+		3 · · · · · · · ·
+		2 · · · · · · · ·
+		1 · · · · · · · ·
+		  a b c d e f g h
+		*/
+
 		expect(result.valid).toBe(false);
 	});
 
 	test("Opposite-color capture is valid under sharedValidation", () => {
+		const e4 = "wp";
+		const f5 = "bp";
+
 		Chess.setFreeMode({
-			e4: "wp",
-			e5: "bp",
-			a1: "wk",
+			e4,
+			f5,
 		});
 
-		// biome-ignore lint/style/noNonNullAssertion: we know it's set
-		const piece = Chess.board.e4!; // "wp"
-		// biome-ignore lint/style/noNonNullAssertion: we know it's set
-		const toPiece = Chess.board.e5!; // "bp"
+		const piece = e4;
+		const toPiece = f5;
 		const result = validateTurnAndSameColorCapture({
 			piece,
 			toPiece,
-
 			currentColor: "w",
 		});
+
+		/*
+		8 · · · · · · · ·
+		7 · · · · · · · ·
+		6 · · · · · · · ·
+		5 · · · · · ♟ · ·
+		4 · · · · ♙ · · ·
+		3 · · · · · · · ·
+		2 · · · · · · · ·
+		1 · · · · · · · ·
+		  a b c d e f g h
+		*/
 
 		expect(result.valid).toBe(true);
 	});
 
 	test("King must move when under check", () => {
+		const e1 = "wk";
+		const e2 = "wp";
+		const h1 = "br"; // black rook placing king in check
 		Chess.setFreeMode({
-			e1: "wk",
-			e2: "wp",
-			h1: "br", // black rook placing king in check
+			e1,
+			e2,
+			h1,
 		});
 
-		// Attempt to move the pawn instead of the king
-		// biome-ignore lint/style/noNonNullAssertion: we know it's set
-		const pawnPiece = Chess.board.e2!; // "wp"
+		const pawnPiece = e2;
+
 		const pawnResult = validateKingCheck(
 			pawnPiece,
 			"e2",
@@ -101,18 +140,31 @@ describe("Shared Validation", () => {
 			"w",
 			[],
 		);
+
+		/*
+		8 · · · · · · · ·
+		7 · · · · · · · ·
+		6 · · · · · · · ·
+		5 · · · · · · · ·
+		4 · · · · · · · ·
+		3 · · · · · · · ·
+		2 · · · · ♙ · · ·
+		1 · · · · ♔ · · ♜
+		  a b c d e f g h
+		*/
+
 		expect(pawnResult.valid).toBe(false);
 	});
 
 	test("Move leaves king under check", () => {
+		const e1 = "wk";
+		const h2 = "br"; // black rook controlling e2
 		Chess.setFreeMode({
-			e1: "wk",
-			h2: "br", // black rook controlling e2
+			e1,
+			h2,
 		});
 
-		// Try moving king into e2 (under rook attack)
-		// biome-ignore lint/style/noNonNullAssertion: we know it's set
-		const kingPiece = Chess.board.e1!; // "wk"
+		const kingPiece = e1;
 		const kingResult = validateKingCheck(
 			kingPiece,
 			"e1",
@@ -121,6 +173,19 @@ describe("Shared Validation", () => {
 			"w",
 			[],
 		);
+
+		/*
+		8 · · · · · · · ·
+		7 · · · · · · · ·
+		6 · · · · · · · ·
+		5 · · · · · · · ·
+		4 · · · · · · · ·
+		3 · · · · · · · ·
+		2 · · · · · · · ♜
+		1 · · · · ♔ · · ·
+		  a b c d e f g h
+		*/
+
 		expect(kingResult.valid).toBe(false);
 		expect(kingResult.message).toBe("Move would leave king in check");
 	});
@@ -131,6 +196,16 @@ describe("Shared Validation", () => {
 			e2: "wb",
 			e8: "br",
 		});
+
+		const result = validateKingCheckAndPromotion({
+			piece: "wb",
+			fromSquare: "e2",
+			toSquare: "d3",
+			board: Chess.board,
+			currentColor: "w",
+			history: [],
+		});
+
 		/*
 		8 · · · · ♜ · · ·
 		7 · · · · · · · ·
@@ -142,14 +217,7 @@ describe("Shared Validation", () => {
 		1 · · · · ♔ · · ·
 		  a b c d e f g h
 		*/
-		const result = validateKingCheckAndPromotion({
-			piece: "wb",
-			fromSquare: "e2",
-			toSquare: "d3",
-			board: Chess.board,
-			currentColor: "w",
-			history: [],
-		});
+
 		expect(result.valid).toBe(false);
 		expect(result.message).toBe("Move would leave king in check");
 	});
@@ -272,7 +340,7 @@ describe("Shared Validation", () => {
 
 	test("Multiple discovered checks - queen and bishop", () => {
 		Chess.setFreeMode({
-			e4: "wk",
+			d4: "wk",
 			f4: "wn",
 			h4: "bq",
 			h8: "bb",
@@ -282,7 +350,7 @@ describe("Shared Validation", () => {
 		7 · · · · · · · ·
 		6 · · · · · · · ·
 		5 · · · · · · · ·
-		4 · · · · ♔ ♘ · ♛
+		4 · · · ♔ · ♘ · ♛
 		3 · · · · · · · ·
 		2 · · · · · · · ·
 		1 · · · · · · · ·

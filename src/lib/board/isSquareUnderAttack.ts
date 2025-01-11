@@ -46,6 +46,7 @@ export function isSquareUnderAttack({
 						`${currentColor}p`,
 						toSquare,
 						history,
+						board,
 					);
 					break;
 				case "n":
