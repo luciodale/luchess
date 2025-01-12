@@ -494,3 +494,21 @@
 	top: 0;
 	width: 12.5%;
 }
+
+.board {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	aspect-ratio: 1 / 1;
+	background-image: url("/images/chessboard.png");
+	background-size: 100%;
+	background-repeat: no-repeat;
+}
+
+.controls {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 1rem;
+	gap: 1rem;
+}

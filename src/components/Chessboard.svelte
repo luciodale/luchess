@@ -64,6 +64,8 @@
       window.removeEventListener("keydown", handleKeydown);
     };
   });
+
+  const lastMove = $derived(boardState.history[boardState.currentMoveIndex]);
 </script>
 
 <div style="padding: 50px 0; position: relative; width: 600px">
@@ -72,13 +74,11 @@
     <Coordinates {color} />
 
     <!-- highlights showing last move -->
-    {#if boardState.history.length}
-      <div
-        class={`${color} highlight square-${boardState.history[boardState.currentMoveIndex].from}`}
-      ></div>
-      <div
-        class={`${color} highlight square-${boardState.history[boardState.currentMoveIndex].to}`}
-      ></div>
+    {#if lastMove?.from}
+      <div class={`${color} highlight square-${lastMove.from}`}></div>
+    {/if}
+    {#if lastMove?.to}
+      <div class={`${color} highlight square-${lastMove.to}`}></div>
     {/if}
 
     <!-- moving piece highlight + hints -->
@@ -128,23 +128,3 @@
   <span>{boardState.currentMoveIndex}</span>
   <button onclick={() => chessBoard.redo()}> Next </button>
 </div>
-
-<style>
-  .board {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    aspect-ratio: 1 / 1;
-    background-image: url("/images/chessboard.png");
-    background-size: 100%;
-    background-repeat: no-repeat;
-  }
-
-  .controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 1rem;
-    gap: 1rem;
-  }
-</style>
