@@ -48,6 +48,8 @@
 
   $inspect(boardState.board);
 
+  // history navigation
+
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === "ArrowRight") {
       chessBoard.redo();
@@ -66,7 +68,10 @@
 
 <div style="padding: 50px 0; position: relative; width: 600px">
   <div class="board" bind:this={boardNode}>
+    <!-- coordinates -->
     <Coordinates {color} />
+
+    <!-- highlights showing last move -->
     {#if boardState.history.length}
       <div
         class={`${color} highlight square-${boardState.history[boardState.currentMoveIndex].from}`}
@@ -75,6 +80,8 @@
         class={`${color} highlight square-${boardState.history[boardState.currentMoveIndex].to}`}
       ></div>
     {/if}
+
+    <!-- moving piece highlight + hints -->
     {#if dragState.piece}
       <div class={`${color} highlight square-${dragState.square}`}></div>
     {/if}
@@ -83,6 +90,8 @@
         class={`${color} ${move.isCapture ? "capture-hint" : "hint"} square-${move.square}`}
       ></div>
     {/each}
+
+    <!-- board pieces -->
     {#each objectEntries(boardState.board) as [square, piece]}
       {#if piece}
         <button
