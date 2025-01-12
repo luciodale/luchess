@@ -13,10 +13,10 @@
   import Coordinates from "./Coordinates.svelte";
 
   type Props = {
-    color: "w" | "b";
+    orientation: "w" | "b";
   };
 
-  const { color }: Props = $props();
+  const { orientation }: Props = $props();
 
   let boardNode: HTMLElement;
 
@@ -71,23 +71,23 @@
 <div style="padding: 50px 0; position: relative; width: 600px">
   <div class="board" bind:this={boardNode}>
     <!-- coordinates -->
-    <Coordinates {color} />
+    <Coordinates {orientation} />
 
     <!-- highlights showing last move -->
     {#if lastMove?.from}
-      <div class={`${color} highlight square-${lastMove.from}`}></div>
+      <div class={`${orientation} highlight square-${lastMove.from}`}></div>
     {/if}
     {#if lastMove?.to}
-      <div class={`${color} highlight square-${lastMove.to}`}></div>
+      <div class={`${orientation} highlight square-${lastMove.to}`}></div>
     {/if}
 
     <!-- moving piece highlight + hints -->
     {#if dragState.piece}
-      <div class={`${color} highlight square-${dragState.square}`}></div>
+      <div class={`${orientation} highlight square-${dragState.square}`}></div>
     {/if}
     {#each dragState.validMoves as move}
       <div
-        class={`${color} ${move.isCapture ? "capture-hint" : "hint"} square-${move.square}`}
+        class={`${orientation} ${move.isCapture ? "capture-hint" : "hint"} square-${move.square}`}
       ></div>
     {/each}
 
@@ -95,7 +95,7 @@
     {#each objectEntries(boardState.board) as [square, piece]}
       {#if piece}
         <button
-          class={`piece ${piece} ${color} square-${square}`}
+          class={`piece ${piece} ${orientation} square-${square}`}
           aria-label={`${square}-${piece}`}
           ontouchstart={(e) =>
             handleDragPiece({
@@ -104,8 +104,9 @@
               piece,
               square,
               boardNode,
-              color,
+              orientation,
               dragState,
+              currentColor: boardState.currentColor,
             })}
           onmousedown={(e) =>
             handleDragPiece({
@@ -114,8 +115,9 @@
               piece,
               square,
               boardNode,
-              color,
+              orientation,
               dragState,
+              currentColor: boardState.currentColor,
             })}
         ></button>
       {/if}

@@ -5,7 +5,7 @@ export function getSquareFromCursorPosition(
 	clientY: number,
 	boardNode: HTMLElement,
 	initSquare: TSquare,
-	color: TColor,
+	orientation: TColor,
 ) {
 	const { top, left, width, height } = boardNode.getBoundingClientRect();
 
@@ -25,7 +25,7 @@ export function getSquareFromCursorPosition(
 	let col: number;
 	let row: number;
 
-	if (color === "w") {
+	if (orientation === "w") {
 		// Standard orientation (white at bottom)
 		col = Math.floor(xPercent / 12.5); // Each column is 12.5% of the board
 		row = 7 - Math.floor(yPercent / 12.5); // Flip y axis for rows

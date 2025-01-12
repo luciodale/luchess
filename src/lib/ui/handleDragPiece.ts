@@ -52,7 +52,7 @@ function handleReleasePiece({
 	chessBoard,
 	piece,
 	square,
-	color,
+	orientation,
 	dragState,
 }: {
 	e: MouseEvent | TouchEvent;
@@ -61,7 +61,7 @@ function handleReleasePiece({
 	chessBoard: ChessBoard;
 	piece: TPiece;
 	square: TSquare;
-	color: TColor;
+	orientation: TColor;
 	dragState: TDragState;
 }) {
 	const { clientX, clientY } = getEventPosition(e);
@@ -71,7 +71,7 @@ function handleReleasePiece({
 		clientY,
 		boardNode,
 		square,
-		color,
+		orientation,
 	);
 
 	debug("drag", `Moving ${piece} from ${square} to ${to}`);
@@ -91,16 +91,18 @@ export function handleDragPiece({
 	piece,
 	square,
 	boardNode,
-	color,
+	orientation,
 	dragState,
+	currentColor,
 }: {
 	e: MouseEvent | TouchEvent;
 	chessBoard: ChessBoard;
 	piece: TPiece;
 	square: TSquare;
 	boardNode: HTMLElement;
-	color: TColor;
+	orientation: TColor;
 	dragState: TDragState;
+	currentColor: TColor;
 }) {
 	if (!isHTMLElement(e.target) || !isHTMLElement(boardNode)) return;
 
@@ -114,6 +116,7 @@ export function handleDragPiece({
 		board: chessBoard.board,
 		history: chessBoard.history,
 		dragState,
+		currentColor,
 	});
 
 	const draggedPieceNode = e.target;
@@ -133,7 +136,7 @@ export function handleDragPiece({
 			chessBoard,
 			piece,
 			square,
-			color,
+			orientation,
 			dragState,
 		});
 

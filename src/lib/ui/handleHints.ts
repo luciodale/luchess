@@ -1,6 +1,7 @@
 import { generateSinglePieceMoves } from "../board/shared";
 import type {
 	TBoard,
+	TColor,
 	TDragState,
 	THistory,
 	TPiece,
@@ -13,13 +14,19 @@ export function showHints({
 	board,
 	history,
 	dragState,
+	currentColor,
 }: {
 	piece: TPiece;
 	fromSquare: TSquare;
 	board: TBoard;
 	history: THistory;
 	dragState: TDragState;
+	currentColor: TColor;
 }) {
+	console.log(piece[0] !== currentColor, "ini here");
+
+	if (piece[0] !== currentColor) return;
+
 	const moves = generateSinglePieceMoves(board, fromSquare, piece, history);
 
 	dragState.piece = piece;

@@ -2,11 +2,11 @@
     import type { TColor } from "../lib/constants";
 
     type Props = {
-        color: TColor;
+        orientation: TColor;
     };
-    const { color }: Props = $props();
+    const { orientation }: Props = $props();
 
-    const isWhite = color === "w";
+    const isWhite = orientation === "w";
 </script>
 
 <svg viewBox="0 0 100 100" class="coordinates">
