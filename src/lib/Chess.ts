@@ -180,7 +180,7 @@ export class ChessBoard {
 
 		if (!isReplay && !sharedValidationRes.valid) {
 			console.error(sharedValidationRes.message);
-			return sharedValidationRes.message;
+			return sharedValidationRes;
 		}
 
 		const { valid, message, specialMove } = pieceValidation({
@@ -194,7 +194,7 @@ export class ChessBoard {
 
 		if (!valid) {
 			console.error(message);
-			return message;
+			return { valid, message };
 		}
 
 		debug("board", `Moving ${piece} from ${fromSquare} to ${toSquare}`);
@@ -226,6 +226,8 @@ export class ChessBoard {
 			this.history = [...this.history, historyMove];
 			this.currentMoveIndex = this.currentMoveIndex + 1;
 			this.checkGameEnd();
+
+			return { valid: true };
 		}
 	}
 

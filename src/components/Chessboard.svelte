@@ -67,6 +67,14 @@
 <div style="padding: 50px 0; position: relative; width: 600px">
   <div class="board" bind:this={boardNode}>
     <Coordinates {color} />
+    {#if boardState.history.length}
+      <div
+        class={`${color} highlight square-${boardState.history[boardState.currentMoveIndex].from}`}
+      ></div>
+      <div
+        class={`${color} highlight square-${boardState.history[boardState.currentMoveIndex].to}`}
+      ></div>
+    {/if}
     {#if dragState.piece}
       <div class={`${color} highlight square-${dragState.square}`}></div>
     {/if}

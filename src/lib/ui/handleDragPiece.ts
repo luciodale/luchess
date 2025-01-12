@@ -2,7 +2,7 @@ import type { ChessBoard } from "../Chess";
 import type { TColor, TDragState, TPiece, TSquare } from "../constants";
 import { debug } from "../debug/debug";
 import { getSquareFromCursorPosition } from "./getSquareFromCursorPosition";
-import { showHints } from "./handleHints";
+import { clearHints, showHints } from "./handleHints";
 import { getEventPosition, isHTMLElement } from "./utils";
 
 // listeners to track the piece being dragged around the board and released
@@ -45,15 +45,25 @@ function handleMovePiece(
 	draggedPieceNode.style.transform = `translate(${centeredX}px, ${centeredY}px)`;
 }
 
-function handleReleasePiece(
-	e: MouseEvent | TouchEvent,
-	draggedPieceNode: HTMLElement,
-	boardNode: HTMLElement,
-	chessBoard: ChessBoard,
-	piece: TPiece,
-	square: TSquare,
-	color: TColor,
-) {
+function handleReleasePiece({
+	e,
+	draggedPieceNode,
+	boardNode,
+	chessBoard,
+	piece,
+	square,
+	color,
+	dragState,
+}: {
+	e: MouseEvent | TouchEvent;
+	draggedPieceNode: HTMLElement;
+	boardNode: HTMLElement;
+	chessBoard: ChessBoard;
+	piece: TPiece;
+	square: TSquare;
+	color: TColor;
+	dragState: TDragState;
+}) {
 	const { clientX, clientY } = getEventPosition(e);
 
 	const to = getSquareFromCursorPosition(
@@ -64,9 +74,10 @@ function handleReleasePiece(
 		color,
 	);
 
-	console.log(piece, square, to);
 	debug("drag", `Moving ${piece} from ${square} to ${to}`);
-	chessBoard.setPiece(square, to, piece);
+	const res = chessBoard.setPiece(square, to, piece);
+
+	if (res?.valid) clearHints(dragState);
 
 	draggedPieceNode.classList.remove("dragging");
 	draggedPieceNode.style.transform = "";
@@ -115,7 +126,7 @@ export function handleDragPiece({
 	movePieceListener = (e: MouseEvent | TouchEvent) =>
 		handleMovePiece(e, draggedPieceNode, boardNode);
 	releasePieceListener = (e: MouseEvent | TouchEvent) =>
-		handleReleasePiece(
+		handleReleasePiece({
 			e,
 			draggedPieceNode,
 			boardNode,
@@ -123,7 +134,8 @@ export function handleDragPiece({
 			piece,
 			square,
 			color,
-		);
+			dragState,
+		});
 
 	boardNode.addEventListener("mousemove", movePieceListener);
 	boardNode.addEventListener("mouseup", releasePieceListener);
