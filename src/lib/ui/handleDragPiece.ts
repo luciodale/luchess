@@ -79,11 +79,14 @@ function handleReleasePiece({
 	}
 
 	debug("drag", `Moving ${piece} from ${square} to ${to}`);
-	chessBoard.setPiece(square, to, piece);
-	dragState.piece = null;
-	dragState.square = null;
-	dragState.validMoves = [];
-	dragState.secondSelect = false;
+	const res = chessBoard.setPiece(square, to, piece);
+
+	if (res?.valid) {
+		dragState.piece = null;
+		dragState.square = null;
+		dragState.validMoves = [];
+		dragState.secondSelect = false;
+	}
 
 	draggedPieceNode.classList.remove("dragging");
 	draggedPieceNode.style.transform = "";
@@ -99,7 +102,6 @@ export function handleDragPiece({
 	boardNode,
 	orientation,
 	dragState,
-	currentColor,
 }: {
 	e: MouseEvent | TouchEvent;
 	chessBoard: ChessBoard;
@@ -108,7 +110,6 @@ export function handleDragPiece({
 	boardNode: HTMLElement;
 	orientation: TColor;
 	dragState: TDragState;
-	currentColor: TColor;
 }) {
 	if (!isHTMLElement(e.target) || !isHTMLElement(boardNode)) return;
 

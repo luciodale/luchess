@@ -58,7 +58,7 @@ export class ChessBoard {
 		this.setBoardState({ ...this.getBoardState(), board: newBoard });
 	}
 
-	private get currentColor(): TColor {
+	public get currentColor(): TColor {
 		return this.getBoardState().currentColor;
 	}
 

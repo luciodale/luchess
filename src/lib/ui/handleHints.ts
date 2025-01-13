@@ -32,7 +32,3 @@ export function showHints({
 		isCapture: !!move.capture,
 	}));
 }
-
-export function clearHints(dragState: TDragState) {
-	dragState.validMoves = [];
-}
