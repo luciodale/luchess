@@ -213,6 +213,7 @@ export type TDragState = {
 	piece: TPiece | null;
 	square: TSquare | null;
 	validMoves: { square: TSquare; isCapture: boolean }[];
+	secondSelect?: boolean;
 };
 
 export const defaultDragState: TDragState = {

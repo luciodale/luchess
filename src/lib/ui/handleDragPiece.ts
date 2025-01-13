@@ -2,7 +2,6 @@ import type { ChessBoard } from "../Chess";
 import type { TColor, TDragState, TPiece, TSquare } from "../constants";
 import { debug } from "../debug/debug";
 import { getSquareFromCursorPosition } from "./getSquareFromCursorPosition";
-import { clearHints, showHints } from "./handleHints";
 import { getEventPosition, isHTMLElement } from "./utils";
 
 // listeners to track the piece being dragged around the board and released
@@ -74,10 +73,17 @@ function handleReleasePiece({
 		orientation,
 	);
 
-	debug("drag", `Moving ${piece} from ${square} to ${to}`);
-	const res = chessBoard.setPiece(square, to, piece);
+	if (!to) {
+		debug("drag", "Invalid square");
+		return;
+	}
 
-	if (res?.valid) clearHints(dragState);
+	debug("drag", `Moving ${piece} from ${square} to ${to}`);
+	chessBoard.setPiece(square, to, piece);
+	dragState.piece = null;
+	dragState.square = null;
+	dragState.validMoves = [];
+	dragState.secondSelect = false;
 
 	draggedPieceNode.classList.remove("dragging");
 	draggedPieceNode.style.transform = "";
@@ -109,15 +115,6 @@ export function handleDragPiece({
 	if (e instanceof TouchEvent) {
 		e.preventDefault();
 	}
-
-	showHints({
-		piece,
-		fromSquare: square,
-		board: chessBoard.board,
-		history: chessBoard.history,
-		dragState,
-		currentColor,
-	});
 
 	const draggedPieceNode = e.target;
 

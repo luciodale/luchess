@@ -23,14 +23,10 @@ export function showHints({
 	dragState: TDragState;
 	currentColor: TColor;
 }) {
-	console.log(piece[0] !== currentColor, "ini here");
-
 	if (piece[0] !== currentColor) return;
 
 	const moves = generateSinglePieceMoves(board, fromSquare, piece, history);
 
-	dragState.piece = piece;
-	dragState.square = fromSquare;
 	dragState.validMoves = moves.map((move) => ({
 		square: move.to,
 		isCapture: !!move.capture,
@@ -38,7 +34,5 @@ export function showHints({
 }
 
 export function clearHints(dragState: TDragState) {
-	dragState.piece = null;
-	dragState.square = null;
 	dragState.validMoves = [];
 }

@@ -4,7 +4,7 @@ export function getSquareFromCursorPosition(
 	clientX: number,
 	clientY: number,
 	boardNode: HTMLElement,
-	initSquare: TSquare,
+	initSquare: TSquare | null,
 	orientation: TColor,
 ) {
 	const { top, left, width, height } = boardNode.getBoundingClientRect();
