@@ -512,3 +512,131 @@
 	margin-top: 1rem;
 	gap: 1rem;
 }
+
+.promotion-window.top {
+	bottom: auto;
+	top: 0;
+}
+.promotion-window {
+	background-color: #fff;
+	border-radius: 3px;
+	bottom: 0;
+	box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.65);
+	display: flex;
+	flex-direction: column-reverse;
+	height: 56.25%;
+	left: 0;
+	position: absolute;
+	top: auto;
+	width: 12.5%;
+	z-index: 2;
+}
+
+.promotion-window .promotion-piece {
+	background-position-y: bottom;
+	background-repeat: no-repeat;
+	background-size: 100%;
+	cursor: pointer;
+	padding-top: 100%;
+	position: relative;
+}
+
+.icon-font-chess.x:before {
+	content: "\0042";
+}
+
+.promotion-window.top .close-button {
+	border-radius: 0 0 3px 3px;
+	order: 0;
+}
+.promotion-window .close-button {
+	align-items: center;
+	background: #f1f1f1;
+	border-radius: 4px 4px 0 0;
+	color: #8b8987;
+	padding: 0.7em;
+	cursor: pointer;
+	display: flex;
+	flex-grow: 1;
+	font-style: normal;
+	justify-content: center;
+	max-height: 12.5%;
+	order: 4;
+	text-align: center;
+}
+
+.promotion-window .close-button svg {
+	width: 50%;
+}
+
+.promotion-window.top .promotion-piece.bb,
+.promotion-window.top .promotion-piece.wb {
+	order: 1;
+}
+
+.promotion-window.top .promotion-piece.br,
+.promotion-window.top .promotion-piece.wr {
+	order: 2;
+}
+
+.promotion-window.top .promotion-piece.bn,
+.promotion-window.top .promotion-piece.wn {
+	order: 3;
+}
+
+.promotion-window.top .promotion-piece.bq,
+.promotion-window.top .promotion-piece.wq {
+	order: 4;
+}
+
+.promotion-window .promotion-piece.bq,
+.promotion-window .promotion-piece.wq {
+	order: 0;
+}
+
+.promotion-window .promotion-piece.bn,
+.promotion-window .promotion-piece.wn {
+	order: 1;
+}
+
+.promotion-window .promotion-piece.br,
+.promotion-window .promotion-piece.wr {
+	order: 2;
+}
+
+.promotion-window .promotion-piece.bb,
+.promotion-window .promotion-piece.wb {
+	order: 3;
+}
+
+.promotion-piece.wb {
+	background-image: url("/images/chess/wb.png");
+}
+
+.promotion-piece.bb {
+	background-image: url("/images/chess/bb.png");
+}
+
+.promotion-piece.wn {
+	background-image: url("/images/chess/wn.png");
+}
+
+.promotion-piece.bn {
+	background-image: url("/images/chess/bn.png");
+}
+
+.promotion-piece.wq {
+	background-image: url("/images/chess/wq.png");
+}
+
+.promotion-piece.bq {
+	background-image: url("/images/chess/bq.png");
+}
+
+.promotion-piece.wr {
+	background-image: url("/images/chess/wr.png");
+}
+
+.promotion-piece.br {
+	background-image: url("/images/chess/br.png");
+}

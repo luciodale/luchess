@@ -115,6 +115,30 @@
       });
     }}
   >
+    <div>
+      <div class="promotion-window top" style="transform: translateX(600%);">
+        <div class="close-button">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18 18 6M6 6l12 12"
+            />
+          </svg>
+        </div>
+
+        <div class="promotion-piece bb"></div>
+        <div class="promotion-piece bn"></div>
+        <div class="promotion-piece bq"></div>
+        <div class="promotion-piece br"></div>
+      </div>
+    </div>
     <!-- coordinates -->
     <Coordinates {orientation} />
 
