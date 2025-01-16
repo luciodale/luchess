@@ -524,7 +524,6 @@
 	box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.65);
 	display: flex;
 	flex-direction: column-reverse;
-	height: 56.25%;
 	left: 0;
 	position: absolute;
 	top: auto;
@@ -554,7 +553,7 @@
 	background: #f1f1f1;
 	border-radius: 4px 4px 0 0;
 	color: #8b8987;
-	padding: 0.7em;
+	padding: 0.2em;
 	cursor: pointer;
 	display: flex;
 	flex-grow: 1;
@@ -566,7 +565,7 @@
 }
 
 .promotion-window .close-button svg {
-	width: 50%;
+	width: 40%;
 }
 
 .promotion-window.top .promotion-piece.bb,

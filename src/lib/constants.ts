@@ -195,6 +195,10 @@ export type TGameEndPayload =
 export type TEventMap = {
 	onGameEnd: TGameEndPayload;
 	onMove: { from: TSquare; to: TSquare; piece: TPiece };
+	onPromotion: {
+		square: TSquare;
+		piece: TPiece;
+	};
 };
 
 export type TEventName = keyof TEventMap;
@@ -221,3 +225,14 @@ export const defaultDragState: TDragState = {
 	square: null,
 	validMoves: [],
 };
+
+export const promotionPieces = [
+	"wq",
+	"wr",
+	"wn",
+	"wb",
+	"bq",
+	"br",
+	"bn",
+	"bb",
+] satisfies TPiece[];

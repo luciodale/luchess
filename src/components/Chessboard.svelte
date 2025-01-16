@@ -40,6 +40,9 @@
       boardState.currentMoveIndex = newState.currentMoveIndex;
     },
     eventHandlers: {
+      onPromotion: ({ square }) => {
+        console.log("Promotion: ", square);
+      },
       onMove: (move) => {
         console.log("Move: ", move);
       },

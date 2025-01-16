@@ -4,7 +4,6 @@ import { type TChessBoard, defaultState } from "../constants";
 import {
 	setAllPiecesToNull,
 	validateKingCheck,
-	validateKingCheckAndPromotion,
 	validateTurnAndSameColorCapture,
 } from "./shared";
 
@@ -132,14 +131,14 @@ describe("Shared Validation", () => {
 
 		const pawnPiece = e2;
 
-		const pawnResult = validateKingCheck(
-			pawnPiece,
-			"e2",
-			"e3",
-			Chess.board,
-			"w",
-			[],
-		);
+		const pawnResult = validateKingCheck({
+			piece: pawnPiece,
+			fromSquare: "e2",
+			toSquare: "e3",
+			board: Chess.board,
+			currentColor: "w",
+			history: [],
+		});
 
 		/*
 		8 · · · · · · · ·
@@ -165,14 +164,14 @@ describe("Shared Validation", () => {
 		});
 
 		const kingPiece = e1;
-		const kingResult = validateKingCheck(
-			kingPiece,
-			"e1",
-			"e2",
-			Chess.board,
-			"w",
-			[],
-		);
+		const kingResult = validateKingCheck({
+			piece: kingPiece,
+			fromSquare: "e1",
+			toSquare: "e2",
+			board: Chess.board,
+			currentColor: "w",
+			history: [],
+		});
 
 		/*
 		8 · · · · · · · ·
@@ -197,7 +196,7 @@ describe("Shared Validation", () => {
 			e8: "br",
 		});
 
-		const result = validateKingCheckAndPromotion({
+		const result = validateKingCheck({
 			piece: "wb",
 			fromSquare: "e2",
 			toSquare: "d3",
@@ -239,7 +238,7 @@ describe("Shared Validation", () => {
 		1 · · · · · · · ·
 		  a b c d e f g h
 		*/
-		const result = validateKingCheckAndPromotion({
+		const result = validateKingCheck({
 			piece: "wn",
 			fromSquare: "f4",
 			toSquare: "d5",
@@ -268,7 +267,7 @@ describe("Shared Validation", () => {
 		1 · · · · ♔ · · ·
 		  a b c d e f g h
 		*/
-		const result = validateKingCheckAndPromotion({
+		const result = validateKingCheck({
 			piece: "wb",
 			fromSquare: "e2",
 			toSquare: "f3",
@@ -297,7 +296,7 @@ describe("Shared Validation", () => {
 		1 · · · · · · · ·
 		  a b c d e f g h
 		*/
-		const result = validateKingCheckAndPromotion({
+		const result = validateKingCheck({
 			piece: "wp",
 			fromSquare: "d4",
 			toSquare: "d5",
@@ -326,7 +325,7 @@ describe("Shared Validation", () => {
 		1 · · · · · · · ·
 		  a b c d e f g h
 		*/
-		const result = validateKingCheckAndPromotion({
+		const result = validateKingCheck({
 			piece: "wn",
 			fromSquare: "e4",
 			toSquare: "g5",
@@ -356,7 +355,7 @@ describe("Shared Validation", () => {
 		1 · · · · · · · ·
 		  a b c d e f g h
 		*/
-		const result = validateKingCheckAndPromotion({
+		const result = validateKingCheck({
 			piece: "wn",
 			fromSquare: "f4",
 			toSquare: "d3",

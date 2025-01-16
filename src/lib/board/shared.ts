@@ -4,7 +4,6 @@ import type {
 	TColor,
 	THistory,
 	TPiece,
-	TRank,
 	TSpecialMoveCastling,
 	TSpecialMoveEnPassant,
 	TSpecialMovePromotion,
@@ -218,14 +217,21 @@ function findKingPosition(board: TBoard, color: TColor): TSquare | null {
 	return null;
 }
 
-export function validateKingCheck(
-	piece: TPiece,
-	fromSquare: TSquare,
-	toSquare: TSquare,
-	board: TBoard,
-	currentColor: TColor,
-	history: THistory,
-): TValidationResult {
+export function validateKingCheck({
+	piece,
+	fromSquare,
+	toSquare,
+	board,
+	currentColor,
+	history,
+}: {
+	piece: TPiece;
+	fromSquare: TSquare;
+	toSquare: TSquare;
+	board: TBoard;
+	currentColor: TColor;
+	history: THistory;
+}): TValidationResult {
 	// Basic king move validation first
 	const isKingMoving = piece.endsWith("k");
 	const kingSquare = isKingMoving
@@ -289,39 +295,6 @@ export function validateTurnAndSameColorCapture({
 	return { valid: true };
 }
 
-export function validateKingCheckAndPromotion({
-	piece,
-	fromSquare,
-	toSquare,
-	board,
-	currentColor,
-	history,
-}: {
-	piece: TPiece;
-	fromSquare: TSquare;
-	toSquare: TSquare;
-	board: TBoard;
-	currentColor: TColor;
-	history: THistory;
-}): TValidationResult {
-	// 3) Validate king check logic:
-	//    - If the king is in check, only a king move that removes check is valid
-	//    - Cannot move king into check
-	const checkValidation = validateKingCheck(
-		piece,
-		fromSquare,
-		toSquare,
-		board,
-		currentColor,
-		history,
-	);
-	if (!checkValidation.valid) {
-		return checkValidation;
-	}
-
-	return { valid: true };
-}
-
 export function sharedValidation({
 	piece,
 	toPiece,
@@ -348,7 +321,9 @@ export function sharedValidation({
 		return result;
 	}
 
-	const resultKingCheck = validateKingCheckAndPromotion({
+	//    - If the king is in check, only a king move that removes check is valid
+	//    - Cannot move king into check
+	const resultKingCheck = validateKingCheck({
 		piece,
 		fromSquare,
 		toSquare,
@@ -356,6 +331,7 @@ export function sharedValidation({
 		currentColor,
 		history,
 	});
+
 	if (!resultKingCheck.valid) {
 		return resultKingCheck;
 	}
@@ -364,11 +340,15 @@ export function sharedValidation({
 }
 
 export function isPawnPromotion(piece: TPiece, to: TSquare): boolean {
-	const destinationRank = Number(to[1]) as TRank;
+	const destinationRank = Number(to[1]);
 	return (
 		(piece === "wp" && destinationRank === 8) ||
 		(piece === "bp" && destinationRank === 1)
 	);
+}
+
+export function detectPromotion(piece: TPiece, to: TSquare) {
+	return isPawnPromotion(piece, to);
 }
 
 export function handleSpecialMove(

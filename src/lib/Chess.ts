@@ -1,24 +1,26 @@
 import { isDraw } from "./board/draw";
 import {
+	detectPromotion,
 	handleSpecialMove,
 	isCheckmate,
 	isStalemate,
 	sharedValidation,
 } from "./board/shared";
 import { pieceValidation } from "./board/validation";
-import type {
-	TBoard,
-	TChessBoard,
-	TColor,
-	TEventHandlers,
-	TEventMap,
-	TGameState,
-	THistory,
-	THistoryMove,
-	TPiece,
-	TSquare,
+import {
+	type TBoard,
+	type TChessBoard,
+	type TColor,
+	type TEventHandlers,
+	type TEventMap,
+	type TGameState,
+	type THistory,
+	type THistoryMove,
+	type TPiece,
+	type TSpecialMove,
+	type TSquare,
+	promotionPieces,
 } from "./constants";
-import { debug } from "./debug/debug";
 import { objectEntries } from "./utils";
 
 export class ChessBoard {
@@ -139,96 +141,154 @@ export class ChessBoard {
 		}
 	}
 
+	private applyMoveAndRecord({
+		fromSquare,
+		toSquare,
+		piece,
+		toPiece,
+		specialMove,
+	}: {
+		fromSquare: TSquare;
+		toSquare: TSquare;
+		piece: TPiece;
+		toPiece: TPiece | null;
+		specialMove?: TSpecialMove;
+	}) {
+		// Update board
+		const newBoard = { ...this.board };
+		newBoard[fromSquare] = null;
+		newBoard[toSquare] = piece;
+		this.board = newBoard;
+
+		// Handle any special move (e.g. castling, en-passant)
+		if (specialMove) {
+			handleSpecialMove(newBoard, specialMove);
+			this.board = newBoard;
+		}
+
+		// Switch sides
+		this.currentColor = this.currentColor === "w" ? "b" : "w";
+
+		// Write to history
+		const historyMove: THistoryMove = {
+			from: fromSquare,
+			to: toSquare,
+			piece,
+			capture: !!toPiece,
+		};
+
+		this.emit("onMove", historyMove);
+
+		this.history = [...this.history, historyMove];
+		this.currentMoveIndex = this.currentMoveIndex + 1;
+		this.checkGameEnd();
+	}
+
+	public finalizePromotion(piece: TPiece, square: TSquare) {
+		// only allow right promotion pieces
+		const validPromotionPieces = promotionPieces.filter(
+			(p) => p[0] === this.currentColor,
+		);
+
+		// @ts-expect-error - we are trying to be extra careful and check if the piece is valid
+		if (!validPromotionPieces.includes(piece)) {
+			console.error("Invalid promotion piece");
+			return;
+		}
+
+		this.applyMoveAndRecord({
+			fromSquare: square,
+			toSquare: square,
+			piece,
+			toPiece: null,
+		});
+	}
+
 	public setPiece(
 		fromSquare: TSquare,
 		toSquare: TSquare,
 		piece: TPiece,
-		replayIdx?: number, // Optional parameter for replay index
+		replayIdx?: number,
 	) {
-		// Don't allow moves if game is over
-		if (this.gameState !== "active" && !replayIdx) {
+		// Game over check (unless replay)
+		if (this.gameState !== "active" && replayIdx === undefined) {
 			return {
 				valid: false,
 				message: `Game is over (${this.gameState})`,
 			};
 		}
 
-		const toPiece = this.getPiece(toSquare);
-
-		// Determine if we are replaying based on replayIdx
 		const isReplay = replayIdx !== undefined;
-
 		const relevantHistory = isReplay
-			? this.history.slice(0, replayIdx) // Use only history up to the provided index
+			? this.history.slice(0, replayIdx)
 			: this.history;
 
 		const isBrowsingHistory = this.currentMoveIndex < this.history.length - 1;
 
-		// Prevent drag and drop move in the middle of history
+		// Prevent normal moves if browsing history and not replay
 		if (isBrowsingHistory && !isReplay) return;
-		if (fromSquare === toSquare) return;
 
-		const sharedValidationRes = sharedValidation({
-			piece,
-			toPiece,
-			board: this.board,
-			currentColor: this.currentColor,
-			fromSquare,
-			history: relevantHistory,
-			toSquare,
-		});
+		// Avoid no-op move
+		if (fromSquare === toSquare && !isReplay) return;
 
-		if (!isReplay && !sharedValidationRes.valid) {
-			console.error(sharedValidationRes.message);
-			return sharedValidationRes;
+		// Only run promotion logic if not replay and not browsing history
+		if (!isReplay && !isBrowsingHistory && detectPromotion(piece, toSquare)) {
+			this.emit("onPromotion", { square: toSquare, piece });
+			return { valid: true };
 		}
 
-		const { valid, message, specialMove } = pieceValidation({
-			piece,
-			toPiece,
-			fromSquare,
-			toSquare,
-			history: relevantHistory,
-			board: this.board,
-		});
+		const toPiece = this.getPiece(toSquare);
 
-		if (!valid) {
-			console.error(message);
-			return { valid, message };
+		// Only run validations if not replay and not browsing history
+		if (!isReplay && !isBrowsingHistory) {
+			const sharedValidationRes = sharedValidation({
+				piece,
+				toPiece,
+				board: this.board,
+				currentColor: this.currentColor,
+				fromSquare,
+				history: relevantHistory,
+				toSquare,
+			});
+			if (!sharedValidationRes.valid) {
+				console.error(sharedValidationRes.message);
+				return sharedValidationRes;
+			}
+
+			const { valid, message, specialMove } = pieceValidation({
+				piece,
+				toPiece,
+				fromSquare,
+				toSquare,
+				history: relevantHistory,
+				board: this.board,
+			});
+			if (!valid) {
+				console.error(message);
+				return { valid, message };
+			}
+
+			// If passing validations, call applyMoveAndRecord
+			this.applyMoveAndRecord({
+				fromSquare,
+				toSquare,
+				piece,
+				toPiece,
+				specialMove,
+			});
+
+			return { valid: true };
 		}
 
-		debug("board", `Moving ${piece} from ${fromSquare} to ${toSquare}`);
-		debug("board", "new board", this.board);
-
+		// If it’s replay or browsing history, just apply minimal changes
+		// (No validations, no new history)
 		const newBoard = { ...this.board };
 		newBoard[fromSquare] = null;
 		newBoard[toSquare] = piece;
 		this.board = newBoard;
 
 		this.currentColor = this.currentColor === "w" ? "b" : "w";
-
-		if (specialMove) {
-			handleSpecialMove(newBoard, specialMove);
-			this.board = newBoard;
-		}
-
-		// Add move to history if it's not a replay
-		if (!isReplay && !isBrowsingHistory) {
-			const historyMove: THistoryMove = {
-				from: fromSquare,
-				to: toSquare,
-				piece,
-				capture: !!toPiece,
-			};
-
-			this.emit("onMove", historyMove);
-
-			this.history = [...this.history, historyMove];
-			this.currentMoveIndex = this.currentMoveIndex + 1;
-			this.checkGameEnd();
-
-			return { valid: true };
-		}
+		return { valid: true };
 	}
 
 	private resetBoard() {
