@@ -3,7 +3,10 @@
   import { ChessBoard } from "../lib/Chess.js";
   import {
     type TChessBoard,
+    type TColor,
     type TDragState,
+    type TPromotionPiece,
+    type TSquare,
     defaultDragState,
     defaultState,
   } from "../lib/constants.js";
@@ -20,6 +23,15 @@
     orientation: "w" | "b";
   };
 
+  type TPromotion = {
+    visible: boolean;
+    color?: TColor;
+    position?: "top" | "bottom";
+    fromSquare?: TSquare;
+    toSquare?: TSquare;
+    transform?: string;
+  };
+
   const { orientation }: Props = $props();
 
   let boardNode: HTMLElement;
@@ -31,6 +43,10 @@
 
   const dragState: TDragState = $state(defaultDragState);
 
+  const promotion: TPromotion = $state({
+    visible: false,
+  });
+
   const chessBoard = new ChessBoard({
     getBoardState: () => boardState,
     setBoardState: (newState) => {
@@ -40,8 +56,27 @@
       boardState.currentMoveIndex = newState.currentMoveIndex;
     },
     eventHandlers: {
-      onPromotion: ({ square }) => {
-        console.log("Promotion: ", square);
+      onPromotion: ({ fromSquare, toSquare, state }) => {
+        console.log("Promotion: ", toSquare);
+
+        // Figure out if it should go on top or bottom. For example:
+        // If orientation is "w" and rank is "8", it's near top
+        const rank = Number(toSquare[1]);
+        const isTop = orientation === "w" ? rank === 8 : rank === 1;
+
+        promotion.position = isTop ? "top" : "bottom";
+        promotion.color = state.currentColor;
+        promotion.toSquare = toSquare;
+        promotion.fromSquare = fromSquare;
+
+        // Calculate the horizontal translateX based on file (a-h).
+        // This is just an example using the file number (0-based).
+        const fileLetter = toSquare[0]; // e.g. "a", "b", ...
+        const fileIndex = fileLetter.charCodeAt(0) - "a".charCodeAt(0); // 0..7
+        // Example: Each square is 12.5% wide on an 8x8 board
+        promotion.transform = `translateX(${fileIndex * 12.5}%)`;
+
+        promotion.visible = true;
       },
       onMove: (move) => {
         console.log("Move: ", move);
@@ -63,6 +98,29 @@
     } else if (event.key === "ArrowLeft") {
       chessBoard.undo();
     }
+  }
+
+  function choosePromotionPiece(piece: TPromotionPiece) {
+    if (!promotion.toSquare || !promotion.fromSquare) return;
+
+    const res = chessBoard.finalizePromotion(
+      piece,
+      promotion.fromSquare,
+      promotion.toSquare,
+    );
+
+    if (res) {
+      promotion.visible = false;
+    }
+  }
+
+  function closePromotionWindow() {
+    promotion.visible = false;
+    promotion.toSquare = undefined;
+    promotion.fromSquare = undefined;
+    promotion.color = undefined;
+    promotion.position = undefined;
+    promotion.transform = undefined;
   }
 
   onMount(() => {
@@ -118,30 +176,69 @@
       });
     }}
   >
-    <div>
-      <div class="promotion-window top" style="transform: translateX(600%);">
-        <div class="close-button">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="2"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M6 18 18 6M6 6l12 12"
-            />
-          </svg>
-        </div>
+    {#if promotion.visible}
+      <div>
+        <!-- Use promotion.position to toggle className "top" or "bottom" 
+         Use promotion.transform for inline style -->
+        <div
+          class="promotion-window {promotion.position}"
+          style="transform: {promotion.transform}"
+        >
+          <div class="close-button" onclick={closePromotionWindow}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 18 18 6M6 6l12 12"
+              />
+            </svg>
+          </div>
 
-        <div class="promotion-piece bb"></div>
-        <div class="promotion-piece bn"></div>
-        <div class="promotion-piece bq"></div>
-        <div class="promotion-piece br"></div>
+          <!-- If color is 'b', display black promotion pieces. Otherwise white. -->
+          {#if promotion.color === "b"}
+            <div
+              class="promotion-piece bb"
+              onclick={() => choosePromotionPiece("bb")}
+            ></div>
+            <div
+              class="promotion-piece bn"
+              onclick={() => choosePromotionPiece("bn")}
+            ></div>
+            <div
+              class="promotion-piece bq"
+              onclick={() => choosePromotionPiece("bq")}
+            ></div>
+            <div
+              class="promotion-piece br"
+              onclick={() => choosePromotionPiece("br")}
+            ></div>
+          {:else}
+            <div
+              class="promotion-piece wb"
+              onclick={() => choosePromotionPiece("wb")}
+            ></div>
+            <div
+              class="promotion-piece wn"
+              onclick={() => choosePromotionPiece("wn")}
+            ></div>
+            <div
+              class="promotion-piece wq"
+              onclick={() => choosePromotionPiece("wq")}
+            ></div>
+            <div
+              class="promotion-piece wr"
+              onclick={() => choosePromotionPiece("wr")}
+            ></div>
+          {/if}
+        </div>
       </div>
-    </div>
+    {/if}
     <!-- coordinates -->
     <Coordinates {orientation} />
 

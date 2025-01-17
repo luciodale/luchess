@@ -79,7 +79,7 @@ function handleReleasePiece({
 	}
 
 	debug("drag", `Moving ${piece} from ${square} to ${to}`);
-	const res = chessBoard.setPiece(square, to, piece);
+	const res = chessBoard.setPiece({ fromSquare: square, toSquare: to, piece });
 
 	if (res?.valid) {
 		dragState.piece = null;

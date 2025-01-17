@@ -11,6 +11,7 @@ export type TQueen = "bq" | "wq";
 export type TKing = "bk" | "wk";
 
 export type TPiece = TPawn | TKnight | TBishop | TRook | TQueen | TKing;
+export type TPromotionPiece = TKnight | TBishop | TRook | TQueen;
 
 export const files = [
 	"a",
@@ -120,7 +121,6 @@ export type TSpecialMoveEnPassant = {
 	destinationPieceSquare: TSquare;
 	rookFromSquare?: undefined;
 	rookToSquare?: undefined;
-	promotedTo?: undefined;
 };
 
 export type TSpecialMoveCastling = {
@@ -128,21 +128,9 @@ export type TSpecialMoveCastling = {
 	destinationPieceSquare?: undefined;
 	rookFromSquare: TSquare;
 	rookToSquare: TSquare;
-	promotedTo?: undefined;
 };
 
-export type TSpecialMovePromotion = {
-	type: "promotion";
-	promotedTo: TKnight | TBishop | TRook | TQueen;
-	destinationPieceSquare?: undefined;
-	rookFromSquare?: undefined;
-	rookToSquare?: undefined;
-};
-
-export type TSpecialMove =
-	| TSpecialMoveEnPassant
-	| TSpecialMoveCastling
-	| TSpecialMovePromotion;
+export type TSpecialMove = TSpecialMoveEnPassant | TSpecialMoveCastling;
 
 export type TValidationResult =
 	| {
@@ -161,6 +149,7 @@ export type THistoryMove = {
 	to: TSquare;
 	piece: TPiece;
 	capture?: boolean;
+	specialMove?: TSpecialMove;
 };
 
 export type THistory = THistoryMove[];
@@ -196,8 +185,10 @@ export type TEventMap = {
 	onGameEnd: TGameEndPayload;
 	onMove: { from: TSquare; to: TSquare; piece: TPiece };
 	onPromotion: {
-		square: TSquare;
+		fromSquare: TSquare;
+		toSquare: TSquare;
 		piece: TPiece;
+		state: TChessBoard;
 	};
 };
 

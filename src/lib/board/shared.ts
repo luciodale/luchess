@@ -6,7 +6,6 @@ import type {
 	TPiece,
 	TSpecialMoveCastling,
 	TSpecialMoveEnPassant,
-	TSpecialMovePromotion,
 	TSquare,
 	TValidationResult,
 } from "../constants";
@@ -353,10 +352,7 @@ export function detectPromotion(piece: TPiece, to: TSquare) {
 
 export function handleSpecialMove(
 	board: TBoard,
-	specialMove:
-		| TSpecialMoveEnPassant
-		| TSpecialMoveCastling
-		| TSpecialMovePromotion,
+	specialMove: TSpecialMoveEnPassant | TSpecialMoveCastling,
 ): void {
 	if (specialMove.type === "enPassant") {
 		board[specialMove.destinationPieceSquare] = null;

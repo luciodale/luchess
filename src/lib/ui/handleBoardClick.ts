@@ -99,7 +99,11 @@ export function handleBoardMouseDown({
 		// MOVE PIECE
 		if (validMove) {
 			if (dragState.square && clickedSquare)
-				chessBoard.setPiece(dragState.square, clickedSquare, dragState.piece);
+				chessBoard.setPiece({
+					fromSquare: dragState.square,
+					toSquare: clickedSquare,
+					piece: dragState.piece,
+				});
 
 			dragState.piece = null;
 			dragState.square = null;

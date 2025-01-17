@@ -17,8 +17,10 @@ import {
 	type THistory,
 	type THistoryMove,
 	type TPiece,
+	type TPromotionPiece,
 	type TSpecialMove,
 	type TSquare,
+	type TValidationResult,
 	promotionPieces,
 } from "./constants";
 import { objectEntries } from "./utils";
@@ -158,13 +160,13 @@ export class ChessBoard {
 		const newBoard = { ...this.board };
 		newBoard[fromSquare] = null;
 		newBoard[toSquare] = piece;
-		this.board = newBoard;
 
 		// Handle any special move (e.g. castling, en-passant)
 		if (specialMove) {
 			handleSpecialMove(newBoard, specialMove);
-			this.board = newBoard;
 		}
+
+		this.board = newBoard;
 
 		// Switch sides
 		this.currentColor = this.currentColor === "w" ? "b" : "w";
@@ -175,6 +177,7 @@ export class ChessBoard {
 			to: toSquare,
 			piece,
 			capture: !!toPiece,
+			specialMove,
 		};
 
 		this.emit("onMove", historyMove);
@@ -184,32 +187,45 @@ export class ChessBoard {
 		this.checkGameEnd();
 	}
 
-	public finalizePromotion(piece: TPiece, square: TSquare) {
+	public finalizePromotion(
+		piece: TPromotionPiece,
+		fromSquare: TSquare,
+		toSquare: TSquare,
+	): TValidationResult {
 		// only allow right promotion pieces
 		const validPromotionPieces = promotionPieces.filter(
 			(p) => p[0] === this.currentColor,
 		);
 
-		// @ts-expect-error - we are trying to be extra careful and check if the piece is valid
 		if (!validPromotionPieces.includes(piece)) {
 			console.error("Invalid promotion piece");
-			return;
+			return { valid: false, message: "Invalid promotion piece" };
 		}
 
 		this.applyMoveAndRecord({
-			fromSquare: square,
-			toSquare: square,
+			fromSquare,
+			toSquare,
 			piece,
 			toPiece: null,
 		});
+
+		return { valid: true };
 	}
 
-	public setPiece(
-		fromSquare: TSquare,
-		toSquare: TSquare,
-		piece: TPiece,
-		replayIdx?: number,
-	) {
+	// replayIdx and specialMove are used only for navigating history - optional
+	public setPiece({
+		fromSquare,
+		toSquare,
+		piece,
+		replayIdx,
+		specialMove,
+	}: {
+		fromSquare: TSquare;
+		toSquare: TSquare;
+		piece: TPiece;
+		replayIdx?: number;
+		specialMove?: TSpecialMove;
+	}) {
 		// Game over check (unless replay)
 		if (this.gameState !== "active" && replayIdx === undefined) {
 			return {
@@ -230,12 +246,6 @@ export class ChessBoard {
 
 		// Avoid no-op move
 		if (fromSquare === toSquare && !isReplay) return;
-
-		// Only run promotion logic if not replay and not browsing history
-		if (!isReplay && !isBrowsingHistory && detectPromotion(piece, toSquare)) {
-			this.emit("onPromotion", { square: toSquare, piece });
-			return { valid: true };
-		}
 
 		const toPiece = this.getPiece(toSquare);
 
@@ -268,6 +278,17 @@ export class ChessBoard {
 				return { valid, message };
 			}
 
+			// Only run promotion logic if not replay and not browsing history
+			if (detectPromotion(piece, toSquare)) {
+				this.emit("onPromotion", {
+					fromSquare,
+					toSquare,
+					piece,
+					state: this.getBoardState(),
+				});
+				return { valid: true };
+			}
+
 			// If passing validations, call applyMoveAndRecord
 			this.applyMoveAndRecord({
 				fromSquare,
@@ -285,6 +306,12 @@ export class ChessBoard {
 		const newBoard = { ...this.board };
 		newBoard[fromSquare] = null;
 		newBoard[toSquare] = piece;
+
+		// Handle any special move (e.g. castling, en-passant)
+		if (specialMove) {
+			handleSpecialMove(newBoard, specialMove);
+		}
+
 		this.board = newBoard;
 
 		this.currentColor = this.currentColor === "w" ? "b" : "w";
@@ -304,7 +331,13 @@ export class ChessBoard {
 
 		for (let i = 0; i <= this.currentMoveIndex; i++) {
 			const historyMove = this.history[i];
-			this.setPiece(historyMove.from, historyMove.to, historyMove.piece, i);
+			this.setPiece({
+				fromSquare: historyMove.from,
+				toSquare: historyMove.to,
+				piece: historyMove.piece,
+				replayIdx: i,
+				specialMove: historyMove.specialMove,
+			});
 		}
 	}
 
