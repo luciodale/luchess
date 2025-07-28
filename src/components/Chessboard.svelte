@@ -18,6 +18,7 @@ import { handleDragPiece } from "../lib/ui/handleDragPiece";
 import { objectEntries } from "../lib/utils";
 import "../style.css";
 import Coordinates from "./Coordinates.svelte";
+import Confetti from "./Confetti.svelte";
 
 type Props = {
 	orientation: "w" | "b";
@@ -46,6 +47,9 @@ const dragState: TDragState = $state(defaultDragState);
 const promotion: TPromotion = $state({
 	visible: false,
 });
+
+let showConfetti = $state(false);
+let gameEndMessage = $state("");
 
 const chessBoard = new ChessBoard({
 	getBoardState: () => boardState,
@@ -84,6 +88,23 @@ const chessBoard = new ChessBoard({
 
 		onGameEnd: (result) => {
 			console.log("Game End: ", result);
+
+			// Show confetti and game end message
+			showConfetti = true;
+
+			if (result.type === "checkmate") {
+				gameEndMessage = `🎉 ${result.winner.toUpperCase()} WINS! 🎉`;
+			} else if (result.type === "stalemate") {
+				gameEndMessage = "🤝 It's a stalemate! 🤝";
+			} else if (result.type === "draw") {
+				gameEndMessage = "🤝 It's a draw! 🤝";
+			}
+
+			// Hide confetti after 5 seconds
+			setTimeout(() => {
+				showConfetti = false;
+				gameEndMessage = "";
+			}, 5000);
 		},
 	},
 });
@@ -135,6 +156,16 @@ const userBoardState = $state({ value: JSON.stringify(boardState.board) });
 </script>
 
 <div style="display: flex; justify-content: center; flex-direction: column; align-items: center;">
+<!-- Confetti overlay -->
+<Confetti active={showConfetti} />
+
+<!-- Game end message -->
+{#if gameEndMessage}
+  <div class="game-end-message">
+    {gameEndMessage}
+  </div>
+{/if}
+
 <div style="padding: 50px 0; position: relative; max-width:700px; width: 100%;">
   <div
     class="board"
