@@ -1,139 +1,141 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { ChessBoard } from "../lib/Chess.js";
-  import {
-    type TChessBoard,
-    type TColor,
-    type TDragState,
-    type TPromotionPiece,
-    type TSquare,
-    defaultDragState,
-    defaultState,
-  } from "../lib/constants.js";
-  import {
-    handleBoardMouseDown,
-    handleBoardMouseUp,
-  } from "../lib/ui/handleBoardClick.js";
-  import { handleDragPiece } from "../lib/ui/handleDragPiece";
-  import { objectEntries } from "../lib/utils";
-  import "../style.css";
-  import Coordinates from "./Coordinates.svelte";
+import { onMount } from "svelte";
+import { ChessBoard } from "../lib/Chess.js";
+import {
+	type TChessBoard,
+	type TColor,
+	type TDragState,
+	type TPromotionPiece,
+	type TSquare,
+	defaultDragState,
+	defaultState,
+} from "../lib/constants.js";
+import {
+	handleBoardMouseDown,
+	handleBoardMouseUp,
+} from "../lib/ui/handleBoardClick.js";
+import { handleDragPiece } from "../lib/ui/handleDragPiece";
+import { objectEntries } from "../lib/utils";
+import "../style.css";
+import Coordinates from "./Coordinates.svelte";
 
-  type Props = {
-    orientation: "w" | "b";
-  };
+type Props = {
+	orientation: "w" | "b";
+};
 
-  type TPromotion = {
-    visible: boolean;
-    color?: TColor;
-    position?: "top" | "bottom";
-    fromSquare?: TSquare;
-    toSquare?: TSquare;
-    transform?: string;
-  };
+type TPromotion = {
+	visible: boolean;
+	color?: TColor;
+	position?: "top" | "bottom";
+	fromSquare?: TSquare;
+	toSquare?: TSquare;
+	transform?: string;
+};
 
-  const { orientation }: Props = $props();
+const { orientation }: Props = $props();
 
-  let boardNode: HTMLElement;
+let boardNode: HTMLElement;
 
-  const boardState: TChessBoard = $state({
-    ...defaultState,
-    currentColor: "w",
-  });
+const boardState: TChessBoard = $state({
+	...defaultState,
+	currentColor: "w",
+});
 
-  const dragState: TDragState = $state(defaultDragState);
+const dragState: TDragState = $state(defaultDragState);
 
-  const promotion: TPromotion = $state({
-    visible: false,
-  });
+const promotion: TPromotion = $state({
+	visible: false,
+});
 
-  const chessBoard = new ChessBoard({
-    getBoardState: () => boardState,
-    setBoardState: (newState) => {
-      boardState.board = newState.board;
-      boardState.currentColor = newState.currentColor;
-      boardState.history = newState.history;
-      boardState.currentMoveIndex = newState.currentMoveIndex;
-    },
-    eventHandlers: {
-      onPromotion: ({ fromSquare, toSquare, state }) => {
-        console.log("Promotion: ", toSquare);
+const chessBoard = new ChessBoard({
+	getBoardState: () => boardState,
+	setBoardState: (newState) => {
+		boardState.board = newState.board;
+		boardState.currentColor = newState.currentColor;
+		boardState.history = newState.history;
+		boardState.currentMoveIndex = newState.currentMoveIndex;
+	},
+	eventHandlers: {
+		onPromotion: ({ fromSquare, toSquare, state }) => {
+			console.log("Promotion: ", toSquare);
 
-        // Figure out if it should go on top or bottom. For example:
-        // If orientation is "w" and rank is "8", it's near top
-        const rank = Number(toSquare[1]);
-        const isTop = orientation === "w" ? rank === 8 : rank === 1;
+			// Figure out if it should go on top or bottom. For example:
+			// If orientation is "w" and rank is "8", it's near top
+			const rank = Number(toSquare[1]);
+			const isTop = orientation === "w" ? rank === 8 : rank === 1;
 
-        promotion.position = isTop ? "top" : "bottom";
-        promotion.color = state.currentColor;
-        promotion.toSquare = toSquare;
-        promotion.fromSquare = fromSquare;
+			promotion.position = isTop ? "top" : "bottom";
+			promotion.color = state.currentColor;
+			promotion.toSquare = toSquare;
+			promotion.fromSquare = fromSquare;
 
-        // Calculate the horizontal translateX based on file (a-h).
-        // This is just an example using the file number (0-based).
-        const fileLetter = toSquare[0]; // e.g. "a", "b", ...
-        const fileIndex = fileLetter.charCodeAt(0) - "a".charCodeAt(0); // 0..7
-        // Example: Each square is 12.5% wide on an 8x8 board
-        promotion.transform = `translateX(${fileIndex * 12.5}%)`;
+			// Calculate the horizontal translateX based on file (a-h) and orientation.
+			const fileLetter = toSquare[0]; // e.g. "a", "b", ...
+			const fileIndex = fileLetter.charCodeAt(0) - "a".charCodeAt(0); // 0..7
+			console.log("in here", fileLetter, fileIndex);
+			// Account for board orientation - when black perspective, files are reversed
+			const adjustedFileIndex = orientation === "w" ? fileIndex : 7 - fileIndex;
+			promotion.transform = `translateX(${adjustedFileIndex * 100}%)`;
 
-        promotion.visible = true;
-      },
-      onMove: (move) => {
-        console.log("Move: ", move);
-      },
+			promotion.visible = true;
+		},
+		onMove: (move) => {
+			console.log("Move: ", move);
+		},
 
-      onGameEnd: (result) => {
-        console.log("Game End: ", result);
-      },
-    },
-  });
+		onGameEnd: (result) => {
+			console.log("Game End: ", result);
+		},
+	},
+});
 
-  $inspect(boardState.board);
+$inspect(boardState.board);
 
-  // history navigation
+// history navigation
 
-  function handleKeydown(event: KeyboardEvent) {
-    if (event.key === "ArrowRight") {
-      chessBoard.redo();
-    } else if (event.key === "ArrowLeft") {
-      chessBoard.undo();
-    }
-  }
+function handleKeydown(event: KeyboardEvent) {
+	if (event.key === "ArrowRight") {
+		chessBoard.redo();
+	} else if (event.key === "ArrowLeft") {
+		chessBoard.undo();
+	}
+}
 
-  function choosePromotionPiece(piece: TPromotionPiece) {
-    if (!promotion.toSquare || !promotion.fromSquare) return;
+function choosePromotionPiece(piece: TPromotionPiece) {
+	if (!promotion.toSquare || !promotion.fromSquare) return;
 
-    const res = chessBoard.finalizePromotion(
-      piece,
-      promotion.fromSquare,
-      promotion.toSquare,
-    );
+	const res = chessBoard.finalizePromotion(
+		piece,
+		promotion.fromSquare,
+		promotion.toSquare,
+	);
 
-    if (res) {
-      promotion.visible = false;
-    }
-  }
+	if (res) {
+		promotion.visible = false;
+	}
+}
 
-  function closePromotionWindow() {
-    promotion.visible = false;
-    promotion.toSquare = undefined;
-    promotion.fromSquare = undefined;
-    promotion.color = undefined;
-    promotion.position = undefined;
-    promotion.transform = undefined;
-  }
+function closePromotionWindow() {
+	promotion.visible = false;
+	promotion.toSquare = undefined;
+	promotion.fromSquare = undefined;
+	promotion.color = undefined;
+	promotion.position = undefined;
+	promotion.transform = undefined;
+}
 
-  onMount(() => {
-    window.addEventListener("keydown", handleKeydown);
-    return () => {
-      window.removeEventListener("keydown", handleKeydown);
-    };
-  });
+onMount(() => {
+	window.addEventListener("keydown", handleKeydown);
+	return () => {
+		window.removeEventListener("keydown", handleKeydown);
+	};
+});
 
-  const lastMove = $derived(boardState.history[boardState.currentMoveIndex]);
+const lastMove = $derived(boardState.history[boardState.currentMoveIndex]);
 </script>
 
-<div style="padding: 50px 0; position: relative; width: 600px">
+<div style="display: flex; justify-content: center; flex-direction: column; align-items: center;">
+<div style="padding: 50px 0; position: relative; max-width:700px; width: 100%;">
   <div
     class="board"
     bind:this={boardNode}
@@ -184,6 +186,7 @@
           class="promotion-window {promotion.position}"
           style="transform: {promotion.transform}"
         >
+        
           <div class="close-button" onclick={closePromotionWindow}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -262,7 +265,7 @@
 
     <!-- board pieces -->
     {#each objectEntries(boardState.board) as [square, piece]}
-      {#if piece}
+      {#if piece && !(promotion.visible && square === promotion.fromSquare)}
         <button
           class={`piece ${piece} ${orientation} square-${square}`}
           aria-label={`${square}-${piece}`}
@@ -296,4 +299,5 @@
   <button onclick={() => chessBoard.undo()}> Previous </button>
   <span>{boardState.currentMoveIndex}</span>
   <button onclick={() => chessBoard.redo()}> Next </button>
+</div>
 </div>

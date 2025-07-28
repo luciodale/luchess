@@ -1,6 +1,6 @@
 <script>
-    import Chessboard from "../components/Chessboard.svelte";
+import Chessboard from "../components/Chessboard.svelte";
 </script>
 
 <Chessboard orientation="w" />
-<Chessboard orientation="b" />
+<!-- <Chessboard orientation="b" /> -->
