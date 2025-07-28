@@ -1,3 +1,40 @@
+/* Silly moving rainbow background */
+@keyframes rainbow-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+body {
+  background: linear-gradient(
+    45deg,
+    #ff0000,
+    #ff8000,
+    #ffff00,
+    #80ff00,
+    #00ff00,
+    #00ff80,
+    #00ffff,
+    #0080ff,
+    #0000ff,
+    #8000ff,
+    #ff00ff,
+    #ff0080,
+    #ff0000
+  );
+  background-size: 400% 400%;
+  animation: rainbow-move 3s ease-in-out infinite;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
 /* White perspective */
 .w.square-a1 {
 	transform: translate(0%, 700%);
