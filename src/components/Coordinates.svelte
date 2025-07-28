@@ -1,12 +1,12 @@
 <script lang="ts">
-    import type { TColor } from "../lib/constants";
+import type { TColor } from "../lib/constants";
 
-    type Props = {
-        orientation: TColor;
-    };
-    const { orientation }: Props = $props();
+type Props = {
+	orientation: TColor;
+};
+const { orientation }: Props = $props();
 
-    const isWhite = orientation === "w";
+const isWhite = orientation === "w";
 </script>
 
 <svg viewBox="0 0 100 100" class="coordinates">
