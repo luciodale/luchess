@@ -667,6 +667,18 @@ body {
   z-index: 100;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo {
+  width: 60px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
 .header h1 {
   margin: 0;
   font-size: 2rem;

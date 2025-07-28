@@ -1,4 +1,7 @@
-# Luchess - a legendary piece of software
+<div align="center">
+  <img src="logo.png" alt="Luchess Logo" width="200" height="200">
+  <h1>Luchess - a legendary piece of software</h1>
+</div>
 
 ## What is Luchess?
 
