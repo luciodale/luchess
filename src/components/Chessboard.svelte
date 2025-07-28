@@ -72,7 +72,6 @@ const chessBoard = new ChessBoard({
 			// Calculate the horizontal translateX based on file (a-h) and orientation.
 			const fileLetter = toSquare[0]; // e.g. "a", "b", ...
 			const fileIndex = fileLetter.charCodeAt(0) - "a".charCodeAt(0); // 0..7
-			console.log("in here", fileLetter, fileIndex);
 			// Account for board orientation - when black perspective, files are reversed
 			const adjustedFileIndex = orientation === "w" ? fileIndex : 7 - fileIndex;
 			promotion.transform = `translateX(${adjustedFileIndex * 100}%)`;
@@ -132,6 +131,7 @@ onMount(() => {
 });
 
 const lastMove = $derived(boardState.history[boardState.currentMoveIndex]);
+const userBoardState = $state({ value: JSON.stringify(boardState.board) });
 </script>
 
 <div style="display: flex; justify-content: center; flex-direction: column; align-items: center;">
@@ -299,5 +299,16 @@ const lastMove = $derived(boardState.history[boardState.currentMoveIndex]);
   <button onclick={() => chessBoard.undo()}> Previous </button>
   <span>{boardState.currentMoveIndex}</span>
   <button onclick={() => chessBoard.redo()}> Next </button>
+</div>
+<p>( or use right left arrows to navigate history )</p>
+<div style="display: flex; justify-content: center; flex-direction: column; align-items: center;">
+  <button onclick={() => {
+        boardState.board = JSON.parse(userBoardState.value);
+    }}>
+    set board state to:
+  </button>
+  <textarea style="width: 500px;  height: 200px;" bind:value={userBoardState.value}>
+  </textarea>
+
 </div>
 </div>
